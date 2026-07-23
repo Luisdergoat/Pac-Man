@@ -96,6 +96,7 @@ class GameState:
     ghosts: List[Ghost] = field(default_factory=list)
     lives: int = 3
     score: int = 0
+    started: bool = False
 
     def __post_init__(self) -> None:
         """
@@ -123,6 +124,7 @@ class GameState:
         """
         Bewegt den Spieler in die angegebene Richtung, falls möglich.
         """
+        self.started = True
         if direction not in DIRECTIONS:
             return
         dr, dc = DIRECTIONS[direction]
@@ -167,6 +169,8 @@ class GameState:
         """
         Führt einen Tick des Spiels aus: bewegt die Geister und prüft Kontakte.
         """
+        if not self.started:
+            return
         for ghost in self.ghosts:
             self._move_ghost_towards_player(ghost)
         self._check_collision()
