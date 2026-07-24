@@ -1,6 +1,9 @@
 from pathlib import Path
+
 import asyncio
 import json
+import os
+import signal
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
@@ -71,7 +74,7 @@ def regenerate_maze() -> list:
     global maze, config
     paresed_new = parse_maze_config(str(config_path))
     if paresed_new is None:
-        return cells_to_grid(maze, config)  # Return the old maze if parsing fails
+        return cells_to_grid(maze, config)  # Return the old maze if failed
     maze, config = paresed_new
     generat_maze(maze, config)
     return cells_to_grid(maze, config)
@@ -117,7 +120,8 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 game_state.move_player(data.get("direction", ""))
                 await broadcast_state()
             elif data.get("action") == "submit_name":
-                game_state.recorde_highscore(data.get("name", ""), "highscores.json")
+                game_state.recorde_highscore(
+                    data.get("name", ""), "highscores.json")
                 await broadcast_state()
             elif data.get("action") == "restart":
                 game_state.reset(regenerate_maze())
@@ -134,6 +138,20 @@ def index():
 @app.get("/maze")
 def get_maze():
     return cells_to_grid(maze, config)
+
+
+@app.post("/shutdown")
+async def shutdown():
+    """
+    Beendet den Server. Dies ist nützlich für Tests,
+    um den Server nach dem Testen zu stoppen.
+    """
+    async def _kill():
+        await asyncio.sleep(0.2)
+        os.kill(os.getpgrid(0), signal.SIGTERM)
+
+    asyncio.create_task(_kill())
+    return {"status": "Server is shutting down..."}
 
 
 app.mount("/static", StaticFiles(directory="../frontend/src"), name="static")

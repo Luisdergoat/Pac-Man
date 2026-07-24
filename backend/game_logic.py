@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from config_loader import load_config, add_highscore
+from config_loader import add_highscore
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Any, Optional
@@ -26,7 +24,8 @@ GHOST_COLORS = ["red", "pink", "cyan", "orange"]
 
 def find_nearest_open_cell(grid: Grid, row: int, col: int) -> Tuple[int, int]:
     """
-    Findet die naechste begehbare Zelle (0) im Grid, beginnend von der Startposition.
+    Findet die naechste begehbare Zelle (0) im Grid,
+    beginnend von der Startposition.
     Verwendet eine Breitensuche (BFS), um die naechste offene Zelle zu finden.
     """
     rows, cols = len(grid), len(grid[0])
@@ -38,7 +37,9 @@ def find_nearest_open_cell(grid: Grid, row: int, col: int) -> Tuple[int, int]:
             return row, col
         for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             new_row, new_col = row + dr, col + dc
-            if 0 <= new_row < rows and 0 <= new_col < cols and (new_row, new_col) not in visited:
+            if (0 <= new_row < rows
+                and 0 <= new_col < cols
+                    and (new_row, new_col)) not in visited:
                 visited.add((new_row, new_col))
                 queue.append((new_row, new_col))
 
@@ -51,7 +52,8 @@ def bfs_next_step(
     blocked: set[Tuple[int, int]] = None
 ) -> Tuple[int, int]:
     """
-    Findet den naechsten Schritt auf dem kuerzesten Weg von start zu target im Grid.
+    Findet den naechsten Schritt auf dem kuerzesten
+    Weg von start zu target im Grid.
     Verwendet eine Breitensuche (BFS), um den kuerzesten Weg zu finden.
     """
     if start == target:
@@ -78,7 +80,7 @@ def bfs_next_step(
                 and 0 <= nc < cols
                 and grid[nr][nc] == 0
                 and neighbor not in visited
-                and (neighbor == target or neighbor not in blocked)  # Vermeide, dass der Startpunkt erneut besucht wird
+                and (neighbor == target or neighbor not in blocked)
             ):
                 visited.add(neighbor)
                 parent[neighbor] = current
@@ -183,7 +185,8 @@ class GameState:
             self.player_row, self.player_col = find_nearest_open_cell(
                 self.grid, rows // 2, cols // 2)
             for ghost in self.ghosts:
-                ghost.row, ghost.col = find_nearest_open_cell(self.grid, ghost.start_row, ghost.start_col)
+                ghost.row, ghost.col = find_nearest_open_cell(
+                    self.grid, ghost.start_row, ghost.start_col)
         else:
             return "Game Over"
 
@@ -195,7 +198,7 @@ class GameState:
             if ghost.row == self.player_row and ghost.col == self.player_col:
                 result = self._respawn_after_hit()
                 if result == "Game Over":
-                    print(result)  # Hier muss die logik von Game Over noch zum JS geparst werdens
+                    print(result)  # Game Over printen, logic fehlt noch
 
     def _place_gums(self) -> None:
         """
@@ -206,7 +209,8 @@ class GameState:
             (ghost.row, ghost.col) for ghost in self.ghosts}
         corners = [(1, 1), (1, cols - 2), (rows - 2, 1), (rows - 2, cols - 2)]
         self.super_gums = {
-            find_nearest_open_cell(self.grid, row, col) for row, col in corners}
+            find_nearest_open_cell(self.grid, row, col) for row, col in corners
+            }
         self.gums = {
             (r, c)
             for r in range(rows)
@@ -243,19 +247,23 @@ class GameState:
             return
         occupied = {(ghost.row, ghost.col) for ghost in self.ghosts}
         for ghost in self.ghosts:
-            occupied.discard((ghost.row, ghost.col))  # Entferne den aktuellen Geist aus der Blockierungsliste
+            occupied.discard((ghost.row, ghost.col))  # Geiter entfernen
             self._move_ghost_towards_player(ghost, blocked=occupied)
-            occupied.add((ghost.row, ghost.col))  # Füge den neuen Standort des Geistes zur Blockierungsliste hinzu
+            occupied.add((ghost.row, ghost.col))
         self._check_collision()
 
     def to_dict(self) -> Dict:
         """
-        Gibt den aktuellen Spielzustand als Dict zurück, für die JS Kommunikation.
+        Gibt den aktuellen Spielzustand als Dict zurück,
+        für die JS Kommunikation.
         """
         return {
             "grid": self.grid,
             "player": {"row": self.player_row, "col": self.player_col},
-            "ghosts": [{"row": g.row, "col": g.col, "color": g.color} for g in self.ghosts],
+            "ghosts": [
+                {
+                    "row": g.row, "col": g.col, "color": g.color
+                    } for g in self.ghosts],
             "lives": self.lives,
             "score": self.score,
             "gums": list(self.gums),
@@ -263,7 +271,9 @@ class GameState:
             "game_over": self.game_over,
         }
 
-    def recorde_highscore(self, name: str, filename: str) -> list[Dict[str, Any]]:
+    def recorde_highscore(
+        self, name: str, filename: str
+    ) -> list[Dict[str, Any]]:
         """
         Fügt den aktuellen Score zur Highscore-Liste hinzu.
         """

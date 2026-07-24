@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
+
 from typing import Any, Dict, List
 
 DEFAULT_CONFIG = {
@@ -14,12 +14,13 @@ DEFAULT_CONFIG = {
     "level_max_time": 90,
 }
 MAX_HIGHSCORES = 10
-NAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{1,20}$")  # Nur Buchstaben, Zahlen und Unterstriche, max. 20 Zeichen
+NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,20}$")  # Nur Buchstaben, Zahlen
 
 
 def _strip_coments(raw_text: str) -> str:
     """
-    Entfernt Kommentare aus dem Text. Kommentare beginnen mit '#' und gehen bis zum Ende der Zeile.
+    Entfernt Kommentare aus dem Text. Kommentare beginnen mit '#'
+    und gehen bis zum Ende der Zeile.
     """
     try:
         lines = [
@@ -35,7 +36,8 @@ def _strip_coments(raw_text: str) -> str:
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """
-    Lädt die Konfiguration aus einer JSON-Datei. Wenn die Datei nicht existiert,
+    Lädt die Konfiguration aus einer JSON-Datei.
+    Wenn die Datei nicht existiert,
     wird die Standardkonfiguration verwendet.
     """
     default_config = dict(DEFAULT_CONFIG)  # Kopie der Standardkonfiguration
@@ -44,17 +46,19 @@ def load_config(config_path: str) -> Dict[str, Any]:
             raw_text = f.read()
             stripped_text = _strip_coments(raw_text)
             loaded_config = json.loads(stripped_text)
-            default_config.update(loaded_config)  # Überschreibt Standardwerte mit geladenen Werten
+            default_config.update(loaded_config)  # Überschreibt Standardwerte
     except FileNotFoundError:
-        print(f"Config file {config_path} not found. Using default configuration.")
+        print(f"Config file {config_path} not found. "
+              f"Using default configuration.")
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON from {config_path}: {e}. Using default configuration.")
+        print(f"Error decoding JSON from {config_path}: {e}. "
+              f"Using default configuration.")
     return default_config
 
 
 def _sanitize_name(name: str) -> str:
     """
-    Überprüft, ob der Name den Anforderungen entspricht. 
+    Überprüft, ob der Name den Anforderungen entspricht.
     Wenn nicht, wird ein Standardname zurückgegeben.
     """
     name = (name or "").strip()
@@ -75,11 +79,13 @@ def load_highscores(filename: str) -> List[Dict[str, Any]]:
         print(f"Highscore file {filename} not found. Returning empty list.")
         return []
     except (json.JSONDecodeError, OSError) as exc:
-        print(f"Warning: Highscore file {filename} is corrupted or unreadable: {exc}. Returning empty list.")
+        print(f"Warning: Highscore file {filename} is corrupted or unreadable:"
+              f" {exc}. Returning empty list.")
         return []
 
     if not isinstance(data, list):
-        print(f"Warning: Highscore file {filename} does not contain a list. Returning empty list.")
+        print(f"Warning: Highscore file {filename} does not contain a list. "
+              f"Returning empty list.")
         return []
 
     return [
@@ -97,8 +103,10 @@ def load_highscores(filename: str) -> List[Dict[str, Any]]:
 
 def add_highscore(filename: str, name: str, score: int) -> None:
     """
-    Fügt einen neuen Highscore hinzu und speichert die aktualisierte Liste in der Datei.
-    Die Liste wird nach Score absteigend sortiert und auf MAX_HIGHSCORES Einträge begrenzt.
+    Fügt einen neuen Highscore hinzu und
+    speichert die aktualisierte Liste in der Datei.
+    Die Liste wird nach Score absteigend
+    sortiert und auf MAX_HIGHSCORES Einträge begrenzt.
     """
     name = _sanitize_name(name)
     score = max(0, int(score)) if isinstance(score, (int, float)) else 0
