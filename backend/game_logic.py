@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+from config_loader import load_config, add_highscore
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any, Optional
 
 
 Grid = List[List[int]]
+
+POINTS_PER_GUM = 10
+POINTS_PER_SUPER_GUM = 50
+POINTS_PER_GHOST = 200
 
 DIRECTIONS: Dict[str, Tuple[int, int]] = {
     "up": (-1, 0),
@@ -39,7 +46,9 @@ def find_nearest_open_cell(grid: Grid, row: int, col: int) -> Tuple[int, int]:
 
 
 def bfs_next_step(
-    grid: Grid, start: Tuple[int, int], target: Tuple[int, int]
+    grid: Grid, start: Tuple[int, int],
+    target: Tuple[int, int],
+    blocked: set[Tuple[int, int]] = None
 ) -> Tuple[int, int]:
     """
     Findet den naechsten Schritt auf dem kuerzesten Weg von start zu target im Grid.
@@ -48,6 +57,7 @@ def bfs_next_step(
     if start == target:
         return start
 
+    blocked = blocked or set()
     rows, cols = len(grid), len(grid[0])
     visited = {start}
     parent: Dict[Tuple[int, int], Tuple[int, int]] = {}
@@ -68,6 +78,7 @@ def bfs_next_step(
                 and 0 <= nc < cols
                 and grid[nr][nc] == 0
                 and neighbor not in visited
+                and (neighbor == target or neighbor not in blocked)  # Vermeide, dass der Startpunkt erneut besucht wird
             ):
                 visited.add(neighbor)
                 parent[neighbor] = current
@@ -86,6 +97,8 @@ class Ghost:
     row: int
     col: int
     color: str
+    start_row: int = 0
+    start_col: int = 0
 
 
 @dataclass
@@ -97,19 +110,15 @@ class GameState:
     lives: int = 3
     score: int = 0
     started: bool = False
+    gums: set[Tuple[int, int]] = field(default_factory=set)
+    super_gums: set[Tuple[int, int]] = field(default_factory=set)
+    game_over: bool = False
 
     def __post_init__(self) -> None:
         """
         Setzt die Startposition des Spielers und der Geiste.
         """
-        rows, cols = len(self.grid), len(self.grid[0])
-        self.player_row, self.player_col = find_nearest_open_cell(
-            self.grid, rows // 2, cols // 2)
-        corners = [(1, 1), (1, cols - 2), (rows - 2, 1), (rows - 2, cols - 2)]
-        self.ghosts = [
-            Ghost(*find_nearest_open_cell(self.grid, row, col), color)
-            for (row, col), color in zip(corners, GHOST_COLORS)
-        ]
+        self._setup()
 
     def is_wall(self, row: int, col: int) -> bool:
         """
@@ -131,19 +140,40 @@ class GameState:
         nr, nc = self.player_row + dr, self.player_col + dc
         if not self.is_wall(nr, nc):
             self.player_row, self.player_col = nr, nc
+            self._collect_gums()
         self._check_collision()
 
-    def _move_ghost_towards_player(self, ghost: Ghost) -> None:
+    def _collect_gums(self) -> None:
+        """
+        Zum einsammeln der gums.
+        """
+        pos = (self.player_row, self.player_col)
+        if pos in self.gums:
+            self.gums.discard(pos)
+            self.score += POINTS_PER_GUM
+        elif pos in self.super_gums:
+            self.super_gums.discard(pos)
+            self.score += POINTS_PER_SUPER_GUM
+            # Hier kommt noch dieser Ess modus hin
+
+    def _move_ghost_towards_player(
+        self,
+        ghost: Ghost,
+        blocked: set[tuple[int, int]] = None
+    ) -> None:
         """
         Bewegt den Geist in Richtung des Spielers, falls möglich.
         """
         next_step = bfs_next_step(
-            self.grid, (ghost.row, ghost.col), (self.player_row, self.player_col)
+            self.grid,
+            (ghost.row, ghost.col),
+            (self.player_row, self.player_col),
+            blocked
         )
         if next_step:
             ghost.row, ghost.col = next_step
 
-    def _respawn_player(self) -> str:
+    def _respawn_after_hit(self) -> str:
         """
         Respawnt den Spieler an der Startposition und reduziert die Leben.
         """
@@ -152,6 +182,8 @@ class GameState:
             rows, cols = len(self.grid), len(self.grid[0])
             self.player_row, self.player_col = find_nearest_open_cell(
                 self.grid, rows // 2, cols // 2)
+            for ghost in self.ghosts:
+                ghost.row, ghost.col = find_nearest_open_cell(self.grid, ghost.start_row, ghost.start_col)
         else:
             return "Game Over"
 
@@ -161,9 +193,44 @@ class GameState:
         """
         for ghost in self.ghosts:
             if ghost.row == self.player_row and ghost.col == self.player_col:
-                result = self._respawn_player()
+                result = self._respawn_after_hit()
                 if result == "Game Over":
                     print(result)  # Hier muss die logik von Game Over noch zum JS geparst werdens
+
+    def _place_gums(self) -> None:
+        """
+        Platziert die Gums und Super-Gums im Grid.
+        """
+        rows, cols = len(self.grid), len(self.grid[0])
+        ocupied = {(self.player_row, self.player_col)} | {
+            (ghost.row, ghost.col) for ghost in self.ghosts}
+        corners = [(1, 1), (1, cols - 2), (rows - 2, 1), (rows - 2, cols - 2)]
+        self.super_gums = {
+            find_nearest_open_cell(self.grid, row, col) for row, col in corners}
+        self.gums = {
+            (r, c)
+            for r in range(rows)
+            for c in range(cols)
+            if (self.grid[r][c] == 0
+                and (r, c) not in ocupied
+                and (r, c) not in self.super_gums)
+        }
+
+    def _setup(self) -> None:
+        """
+        Setzt den Spielzustand zurück, falls das Spiel neu gestartet wird.
+        """
+        rows, cols = len(self.grid), len(self.grid[0])
+        self.player_row, self.player_col = find_nearest_open_cell(
+            self.grid, rows // 2, cols // 2)
+        corners = [(1, 1), (1, cols - 2), (rows - 2, 1), (rows - 2, cols - 2)]
+        self.ghosts = [
+            Ghost(*find_nearest_open_cell(self.grid, row, col), color)
+            for (row, col), color in zip(corners, GHOST_COLORS)
+        ]
+        for ghost in self.ghosts:
+            ghost.start_row, ghost.start_col = ghost.row, ghost.col
+        self._place_gums()
 
     def tick(self) -> None:
         """
@@ -171,8 +238,14 @@ class GameState:
         """
         if not self.started:
             return
+        if self.lives <= 0:
+            self.game_over = True
+            return
+        occupied = {(ghost.row, ghost.col) for ghost in self.ghosts}
         for ghost in self.ghosts:
-            self._move_ghost_towards_player(ghost)
+            occupied.discard((ghost.row, ghost.col))  # Entferne den aktuellen Geist aus der Blockierungsliste
+            self._move_ghost_towards_player(ghost, blocked=occupied)
+            occupied.add((ghost.row, ghost.col))  # Füge den neuen Standort des Geistes zur Blockierungsliste hinzu
         self._check_collision()
 
     def to_dict(self) -> Dict:
@@ -185,4 +258,25 @@ class GameState:
             "ghosts": [{"row": g.row, "col": g.col, "color": g.color} for g in self.ghosts],
             "lives": self.lives,
             "score": self.score,
+            "gums": list(self.gums),
+            "super_gums": list(self.super_gums),
+            "game_over": self.game_over,
         }
+
+    def recorde_highscore(self, name: str, filename: str) -> list[Dict[str, Any]]:
+        """
+        Fügt den aktuellen Score zur Highscore-Liste hinzu.
+        """
+        return add_highscore(filename, name, self.score)
+
+    def reset(self, grid: Optional[Grid] = None) -> None:
+        """
+        Setzt den Spielzustand zurück, um ein neues Spiel zu starten.
+        """
+        if grid is not None:
+            self.grid = grid
+        self.lives = 3
+        self.score = 0
+        self.started = False
+        self.game_over = False
+        self._setup()

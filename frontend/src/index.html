@@ -7,11 +7,47 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <div id="text">
-        <h1>Pac-Man</h1>
+    <div id="start-screen" class="screen">
+        <div class="screen-box">
+            <h1>Pac-Man</h1>
+            <button id="game-start-btn">Game Start</button>
+            <button id="settings-btn">Settings</button>
+        </div>
     </div>
-    
-    <canvas id="gameCanvas"></canvas>
+
+    <div id="settings-screen" class="screen hidden">
+        <div class="screen-box">
+            <h2>Settings</h2>
+            <p>Move: W A S D<br>Restart: R</p>
+            <button id="settings-back-btn">Back</button>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="screen hidden">
+        <div id="loading-text">Loading Maze...</div>
+        <div id="loading-bar-track">
+            <div id="loading-bar-fill"></div>
+        </div>
+    </div>
+
+    <div id="overlay" class="screen hidden">
+        <div class="screen-box">
+            <h2 id="overlay-title">Game Over</h2>
+            <p id="overlay-score">Score: 0</p>
+            <input id="name-input" type="text" maxlength="10" placeholder="Your name">
+            <div id="overlay-buttons">
+                <button id="submit-name-btn">Save Score</button>
+                <button id="restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scoreboard" class="hidden">
+        <span id="score">Score: 0</span>
+        <span id="lives">Lives: 3</span>
+    </div>
+
+    <canvas id="gameCanvas" class="hidden"></canvas>
     <script src="static/game.js"></script>
 </body>
 </html>

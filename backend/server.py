@@ -24,7 +24,6 @@ maze, config = parsed
 generat_maze(maze, config)
 
 
-
 BASE_DIR = Path(__file__).resolve().parent
 
 
@@ -65,6 +64,19 @@ def cells_to_grid(maze, config):
     return grid
 
 
+def regenerate_maze() -> list:
+    """
+    Generiert ein neues Maze und gibt das Block-Grid zurück.
+    """
+    global maze, config
+    paresed_new = parse_maze_config(str(config_path))
+    if paresed_new is None:
+        return cells_to_grid(maze, config)  # Return the old maze if parsing fails
+    maze, config = paresed_new
+    generat_maze(maze, config)
+    return cells_to_grid(maze, config)
+
+
 game_state = GameState(cells_to_grid(maze, config))
 clients: set[WebSocket] = set()
 
@@ -103,6 +115,12 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             data = await websocket.receive_json()
             if data.get("action") == "move":
                 game_state.move_player(data.get("direction", ""))
+                await broadcast_state()
+            elif data.get("action") == "submit_name":
+                game_state.recorde_highscore(data.get("name", ""), "highscores.json")
+                await broadcast_state()
+            elif data.get("action") == "restart":
+                game_state.reset(regenerate_maze())
                 await broadcast_state()
     except WebSocketDisconnect:
         clients.discard(websocket)
