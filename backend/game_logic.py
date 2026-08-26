@@ -273,7 +273,8 @@ class GameState:
     # MARK: _reachable_cells
     def _reachable_cells(self, start: Tuple[int, int]) -> set[Tuple[int, int]]:
         """
-        Gibt die Menge der erreichbaren Zellen von der Startposition aus zurück.
+        Gibt die Menge der erreichbaren Zellen,
+        von der Startposition aus zurück.
         """
         rows, cols = len(self.grid), len(self.grid[0])
         visited = set()
