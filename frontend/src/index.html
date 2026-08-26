@@ -7,44 +7,195 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
+    <template id="maze-bg-template">
+        <svg class="hero-maze-bg" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
+            <g class="maze-lines" fill="none" stroke="#1f2eff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M60,20 L60,150 Q60,185 95,185 L200,185" />
+                <path d="M60,240 L60,420 Q60,455 95,455 L170,455" />
+                <path d="M60,505 L60,610" />
+                <rect x="15" y="270" width="150" height="55" rx="18" />
+                <path d="M230,60 L230,140" />
+                <path d="M230,300 L230,420 Q230,450 260,450 L340,450" />
+                <rect x="185" y="30" width="130" height="45" rx="16" />
+
+                <path d="M940,20 L940,150 Q940,185 905,185 L800,185" />
+                <path d="M940,240 L940,420 Q940,455 905,455 L830,455" />
+                <path d="M940,505 L940,610" />
+                <rect x="835" y="270" width="150" height="55" rx="18" />
+                <path d="M770,60 L770,140" />
+                <path d="M770,300 L770,420 Q770,450 740,450 L660,450" />
+                <rect x="685" y="30" width="130" height="45" rx="16" />
+            </g>
+            <g class="maze-dots" fill="#ffcc66" opacity="0.85">
+                <circle cx="80" cy="230" r="9" />
+                <circle cx="920" cy="230" r="9" />
+                <circle cx="75" cy="565" r="9" />
+                <circle cx="925" cy="565" r="9" />
+            </g>
+        </svg>
+    </template>
+
     <div id="start-screen" class="screen">
-        <div class="screen-box">
-            <h1>Pac-Man</h1>
-            <button id="game-start-btn">Game Start</button>
-            <button id="settings-btn">Settings</button>
-        </div>
-    </div>
+        <div class="pacman-hero">
+            <div class="hero-content">
+                <div class="hero-topbar">
+                    <div class="hero-score-block">
+                        <span class="hero-label">1UP</span>
+                        <span class="hero-value">00</span>
+                    </div>
+                    <div class="hero-tagline">— A CLASSIC LIVES ON —</div>
+                    <div class="hero-score-block">
+                        <span class="hero-label">HIGH SCORE</span>
+                        <span class="hero-value" id="top-highscore-value">00</span>
+                    </div>
+                </div>
 
-    <div id="settings-screen" class="screen hidden">
-        <div class="screen-box">
-            <h2>Settings</h2>
-            <p>Move: W A S D<br>Restart: R</p>
-            <button id="settings-back-btn">Back</button>
-        </div>
-    </div>
+                <h1 class="pacman-logo" data-text="PAC-MAN">PAC-MAN<sup class="tm">™</sup></h1>
 
-    <div id="loading-screen" class="screen hidden">
-        <div id="loading-text">Loading Maze...</div>
-        <div id="loading-bar-track">
-            <div id="loading-bar-fill"></div>
-        </div>
-    </div>
+                <div class="hero-buttons">
+                    <button id="game-start-btn" class="hero-btn hero-btn-yellow">
+                        <span class="btn-icon pac-icon"></span>SPIEL STARTEN
+                    </button>
+                    <button id="settings-btn" class="hero-btn hero-btn-blue">
+                        <span class="btn-icon gear-icon">&#9881;</span>OPTIONEN
+                    </button>
+                    <button id="scoreboard-btn" class="hero-btn hero-btn-orange">
+                        <span class="btn-icon trophy-icon">&#127942;</span>SCOREBOARD
+                    </button>
+                </div>
 
-    <div id="overlay" class="screen hidden">
-        <div class="screen-box">
-            <h2 id="overlay-title">Game Over</h2>
-            <p id="overlay-score">Score: 0</p>
-            <input id="name-input" type="text" maxlength="10" placeholder="Your name">
-            <div id="overlay-buttons">
-                <button id="submit-name-btn">Save Score</button>
-                <button id="restart-btn">Play Again</button>
+                <div class="hero-top3" id="hero-top3">
+                    <div class="top3-title">TOP SCORES</div>
+                    <div class="top3-list" id="top3-list"></div>
+                </div>
+
+                <div class="hero-subtagline">SAME GAME. BIGGER SMILES.</div>
+
+                <div class="chase-row">
+                    <div class="chase-pac"></div>
+                    <div class="chase-dots"></div>
+                    <div class="ghost ghost-red"><span class="ghost-eyes"></span></div>
+                    <div class="ghost ghost-pink"><span class="ghost-eyes"></span></div>
+                    <div class="ghost ghost-cyan"><span class="ghost-eyes"></span></div>
+                    <div class="ghost ghost-orange"><span class="ghost-eyes"></span></div>
+                </div>
+
+                <div class="hero-footer">EAT &middot; CHASE &middot; ESCAPE &middot; SCORE &middot; REPEAT</div>
             </div>
         </div>
     </div>
 
+    <div id="settings-screen" class="screen hidden">
+        <div class="pacman-hero">
+            <div class="hero-content settings-content">
+                <div class="hero-tagline">— OPTIONEN —</div>
+                <h1 class="pacman-logo" data-text="PAC-MAN">PAC-MAN<sup class="tm">™</sup></h1>
+
+                <div class="settings-panel">
+                    <div class="settings-row">
+                        <span class="settings-key">W A S D</span>
+                        <span class="settings-desc">BEWEGEN</span>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-key">P</span>
+                        <span class="settings-desc">PAUSE</span>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-key">R</span>
+                        <span class="settings-desc">NEUSTART</span>
+                    </div>
+                </div>
+
+                <button id="settings-back-btn" class="hero-btn hero-btn-blue">ZUR&Uuml;CK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scoreboard-screen" class="screen hidden">
+        <div class="pacman-hero">
+            <div class="hero-content scoreboard-content">
+                <div class="hero-tagline">— SCOREBOARD —</div>
+                <h1 class="pacman-logo" data-text="PAC-MAN">PAC-MAN<sup class="tm">™</sup></h1>
+
+                <div class="scoreboard-list" id="scoreboard-list"></div>
+
+                <button id="scoreboard-back-btn" class="hero-btn hero-btn-blue">ZUR&Uuml;CK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="screen hidden">
+        <div class="pacman-hero">
+            <div class="hero-content loading-content">
+                <div class="hero-tagline">— LOADING —</div>
+                <h1 class="pacman-logo" data-text="PAC-MAN">PAC-MAN<sup class="tm">™</sup></h1>
+                <div id="loading-bar-track">
+                    <div id="loading-dots-bg"></div>
+                    <div id="loading-bar-fill"></div>
+                </div>
+                <div id="loading-text">Loading Maze...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="screen hidden">
+        <div class="pacman-hero">
+            <div class="hero-content overlay-content">
+                <div class="hero-tagline">— GAME OVER —</div>
+                <h1 class="pacman-logo" data-text="PAC-MAN">PAC-MAN<sup class="tm">™</sup></h1>
+
+                <div class="overlay-stats">
+                    <div class="hero-score-block">
+                        <span class="hero-label">SCORE</span>
+                        <span class="hero-value" id="overlay-score">0</span>
+                    </div>
+                    <div class="hero-score-block">
+                        <span class="hero-label">LEVEL</span>
+                        <span class="hero-value" id="overlay-level">1</span>
+                    </div>
+                </div>
+
+                <input id="name-input" class="hero-input" type="text" maxlength="10" placeholder="DEIN NAME">
+
+                <div class="hero-buttons">
+                    <button id="submit-name-btn" class="hero-btn hero-btn-orange">
+                        <span class="btn-icon trophy-icon">&#127942;</span>SPEICHERN
+                    </button>
+                    <button id="restart-btn" class="hero-btn hero-btn-yellow">
+                        <span class="btn-icon pac-icon"></span>NOCHMAL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="pause-screen" class="screen hidden">
+        <div class="pacman-hero">
+            <div class="hero-content pause-content">
+                <div class="hero-tagline">— PAUSIERT —</div>
+                <h1 class="pacman-logo" data-text="PAC-MAN">PAC-MAN<sup class="tm">™</sup></h1>
+
+                <div class="hero-buttons">
+                    <button id="resume-btn" class="hero-btn hero-btn-yellow">
+                        <span class="btn-icon pac-icon"></span>WEITER
+                    </button>
+                    <button id="menu-btn" class="hero-btn hero-btn-blue">HAUPTMEN&Uuml;</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="scoreboard" class="hidden">
-        <span id="score">Score: 0</span>
-        <span id="lives">Lives: 3</span>
+        <div class="hero-score-block">
+            <span class="hero-label">LEVEL</span>
+            <span class="hero-value" id="level">1</span>
+        </div>
+        <div class="hero-score-block">
+            <span class="hero-label">SCORE</span>
+            <span class="hero-value" id="score">0</span>
+        </div>
+        <div class="hero-score-block">
+            <span class="hero-label">LIVES</span>
+            <span class="hero-value" id="lives">3</span>
+        </div>
     </div>
 
     <canvas id="gameCanvas" class="hidden"></canvas>

@@ -133,6 +133,19 @@ Projekt-Tagebuch für die 42 Pac-Man-Aufgabe. Neue Einträge einfach unten anhä
   darin und öffnet danach Chrome auf `localhost`. Dazu `debug` (pdb),
   `lint`/`lint-strict` (exakt die vom Subject geforderten flake8/mypy-Flags),
   `clean` (Caches), `fclean` (zusätzlich venv löschen), `re`.
+- Zugewiesenes A-Maze-ing Package erhalten (`mazegenerator-00001-py3-none-any.whl`
+  im Projekt-Root) – ersetzt den bisherigen selbstgeschriebenen `mazegen`-Ordner.
+  Wheel entpackt und Quellcode direkt geprüft (nicht nur README vertraut):
+  Klasse `MazeGenerator`, Konstruktor `size=(w,h), entry_cell, exit_cell,
+  perfect, seed` (seed=0 heisst voll zufaellig), Property `.maze` liefert
+  `maze[y][x]`-Grid ohne extra Rahmen (Aussenkanten sind fest in den
+  Randzellen-Bits kodiert), Wand-Bits **N=1, E=2, S=4, W=8** (anders als beim
+  alten Package: N=8, E=4, S=2, W=1). `cells_to_grid()` in `server.py` dafuer
+  umgeschrieben (kein `+1`-Offset mehr fuers Ausblenden eines Rahmens noetig).
+  Maze-Erzeugung laeuft jetzt direkt ueber Konstruktor-Parameter in Python,
+  kein `config.txt`/`parse_maze_config`-Umweg mehr fuer den Maze-Teil noetig.
+  Package als lokale Wheel-Datei in `requirements.txt` eingetragen
+  (`../mazegenerator-00001-py3-none-any.whl`).
 
 ### Probleme / Bugs (im Laufe des Tages gefixt)
 - Geister "zuckten" gegen Wände: Greedy-Distanz-Bewegung ohne echtes
@@ -167,14 +180,119 @@ Projekt-Tagebuch für die 42 Pac-Man-Aufgabe. Neue Einträge einfach unten anhä
   `onmessage` ab, Spiel blieb im Ladebildschirm haengen.
 - Exit-Button im Start-Screen lag ausserhalb von `#start-screen`/`.screen-box`
   im HTML -> war permanent sichtbar statt nur auf dem Start-Screen.
+- Package-Wechsel: README-Quickstart des zugewiesenen `mazegenerator`-Wheels
+  ist falsch/veraltet (`from mazegenerator import MazeGenerator` schlaegt fehl,
+  `__init__.py` im Wheel ist leer und exportiert nichts). Tatsaechlich
+  funktionierender Import: `from mazegenerator.mazegenerator import
+  MazeGenerator`. Erst durch direktes Testen im Sandbox-Python gefunden, nicht
+  aus der Doku ersichtlich.
 
 ### Naechste Schritte
+- Umstellung auf das neue `mazegenerator`-Package in `server.py` einbauen
+  (siehe oben) und alten `mazegen/`-Ordner + `config.txt` aufraeumen/loeschen,
+  sobald das laeuft.
 - Level-Progression (mind. 10 Level, erstes mit festem Seed 42, Rest random) –
-  Config-System steht, muss jetzt noch mit `server.py`/Level-Wechsel verdrahtet
-  werden.
+  jetzt auf Basis von `build_maze(seed=...)` mit variabler Breite/Hoehe pro
+  Level statt der alten `config.txt`.
 - Pause-Menü.
 - Victory-Screen (aktuell nur Game-Over-Screen vorhanden).
 - Cheat Mode für die Review (Invincibility, Level Skip, Ghost Freeze, etc.).
 - README nach Subject-Vorgaben schreiben (Description, Instructions, Resources,
   Configuration, Highscore, Maze Generation, Implementation, Architecture,
   Project Management).
+
+**-> Hier Schluss gemacht für heute.** Weiter geht's mit dem Einbau des
+`mazegenerator`-Packages, danach Level-Progression.
+
+---
+
+## 2026-08-26
+
+### Was gemacht wurde
+- Maze-Generator-Package-Wechsel fertig integriert: `build_maze()` in
+  `server.py` nutzt jetzt die `.maze`-Property von `MazeGenerator` direkt
+  (vorher fälschlich `.generate_maze()` aufgerufen, existiert nicht),
+  `cells_to_grid()` verarbeitet das Bitmask-Grid des neuen Packages.
+- Server-Shutdown-Bug gefixt: `os.getpgrid(0)` existiert nicht in Python,
+  korrekt ist `os.killpg(os.getpgid(0), signal.SIGTERM)`.
+- Makefile-Bug gefixt, der für den hartnäckigen "läuft trotzdem unter Python
+  3.9"-Fehler verantwortlich war: `uv venv` überschreibt ein bestehendes
+  venv-Verzeichnis nicht. `install`-Target löscht das alte venv jetzt vorher
+  (`rm -rf $(VENV_NAME) &&`), bevor es mit `--python 3.12` neu angelegt wird.
+  Damit läuft `mazegenerator` (nutzt `str | bool`-Syntax, braucht Python
+  >=3.10) endlich im richtigen Interpreter.
+- Pause-Feature eingebaut: Taste "P" toggelt `GameState.paused`,
+  `move_player()`/`tick()` brechen früh ab wenn pausiert, neuer
+  `#pause-screen` mit Resume-/Back-to-Main-Menu-Buttons in `index.html`.
+- Bug beim "Back to Main Menu"-Button gefixt: Button hat vorher nur lokal den
+  Screen gewechselt, ohne den Server zu informieren -> nächster periodischer
+  Broadcast kam noch mit `paused: true` rein und hat den Pause-Screen wieder
+  übergelegt. Fix: neue `leave_to_menu`-Action/Methode, die serverseitig
+  `paused`/`started` zurücksetzt.
+- Geister-KI "dümmer" gemacht: `GHOST_CHASE_CHANCE` (Default 0.6) – Geister
+  jagen nur noch mit dieser Wahrscheinlichkeit gezielt per BFS, sonst laufen
+  sie zufällig (`_random_valid_step`).
+- Spieler-Speed-Cap: Bewegungstasten haben bei gehaltener Taste durch
+  Browser-Keyrepeat zu schnell ausgelöst -> `MOVE_INTERVAL_MS`-Throttle in
+  `game.js` (Standard 150ms) begrenzt die Bewegungsrate unabhängig vom
+  Keyrepeat.
+- Edible-Ghost-Modus vollständig eingebaut: Super-Gum setzt `edible_until`
+  (`time.monotonic()`-Timer, `EDIBLE_DURATION` Sekunden), Geister fliehen
+  währenddessen (`_flee_step`, maximiert statt minimiert die Distanz zum
+  Spieler), Kollision mit fressbarem Geist gibt `POINTS_PER_GHOST` Punkte und
+  respawnt nur den Geist an seiner Startecke statt ein Leben zu kosten.
+- Level-Progression eingebaut: neues `level`-Feld in `GameState`,
+  `level_complete` wird gesetzt sobald Gums und Super-Gums leer sind,
+  `next_level()` erhöht das Level, lädt ein frisches Maze (neuer zufälliger
+  Seed) und behält Score/Leben. `server.py` generiert nach jedem Zug bei
+  Bedarf ein neues Maze und ruft `next_level()`.
+- Highscore-System um Level erweitert: `config_loader.add_highscore()`/
+  `load_highscores()` speichern/lesen jetzt zusätzlich `level` pro Eintrag,
+  `GameState.recorde_highscore()` übergibt das aktuelle Level mit.
+- Neuer `/highscores`-Endpoint + Highscore-Screen im Frontend (Button auf dem
+  Start-Screen), zeigt Einträge als "Name - Stage X - Score Punkte".
+- Live-HUD zeigt jetzt zusätzlich das aktuelle Level, Geister werden während
+  des Edible-Modus blau eingefärbt.
+
+### Probleme / Bugs (im Laufe der Session gefixt)
+- `generator.generate_maze()` existiert nicht auf `MazeGenerator` (richtig:
+  `.maze`-Property) -> `AttributeError` beim Serverstart nach dem
+  Package-Wechsel.
+- `os.getpgrid(0)` gibt es in Python nicht (richtig:
+  `os.killpg(os.getpgid(0), ...)`) -> Shutdown-Endpoint crashte.
+- `TypeError: unsupported operand type(s) for |: 'type' and 'type'` beim
+  Start: Server lief unter Python 3.9 (Xcode-Bundled-Python) statt der
+  3.12-venv, weil `uv venv` ein bestehendes (kaputtes) venv-Verzeichnis nicht
+  überschreibt – die venv aus dem ersten fehlgeschlagenen Versuch blieb bei
+  3.9 hängen, obwohl `--python 3.12` schon im Makefile stand.
+- Pause-Feature: ursprüngliche Vermutung war ein falscher Tastencheck
+  (Escape statt P) – tatsächlich war P von Anfang an korrekt so gewollt,
+  kein echter Bug.
+- "Back to Main Menu" zeigte kurz den Start-Screen und sprang dann wieder
+  zurück: Server wusste nichts vom Menü-Wechsel, periodischer Broadcast mit
+  `paused: true` hat den Pause-Screen reaktiviert. Gefixt mit expliziter
+  `leave_to_menu`-Action.
+- `_check_collision()` hat `"Game Over"` von `_respawn_after_hit()` nur
+  geprintet statt `self.game_over` zu setzen -> Game-Over-Screen kam erst mit
+  bis zu 300ms Verzögerung (nächster Tick). Beim Umbau für Edible-Ghosts
+  direkt mitgefixt.
+
+### Naechste Schritte
+- Alten `backend/mazegen/`-Ordner und `config.txt` (fürs alte Maze-Package)
+  endgültig aufräumen/löschen.
+- Testen, dass `make fclean && make run` jetzt zuverlässig mit Python 3.12
+  durchläuft und das neue Maze-Package/Level-Progression im echten Browser
+  funktioniert.
+- Victory-Screen (aktuell wird alles über das Game-Over-Overlay abgewickelt).
+- Cheat Mode für die Review (Invincibility, Level Skip, Ghost Freeze, etc.).
+- README nach Subject-Vorgaben schreiben (Description, Instructions,
+  Resources inkl. AI-Nutzung, Configuration, Highscore, Maze Generation,
+  Implementation, Architecture, Project Management).
+- Projektmanagement-Doku (Zeitplan/Gantt/Kanban, Risikoanalyse,
+  Team-Organisation, Abnahmetestplan) laut Subject Kapitel VIII – bisher nur
+  dieses informelle Tagebuch.
+- `mypy`/`flake8`-Durchlauf über den gesamten Code (u.a. `blocked: set[...]
+  = None` ist nicht als `Optional` annotiert, würde unter `--strict`
+  durchfallen).
+
+**-> Hier Schluss gemacht für heute.**

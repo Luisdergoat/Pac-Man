@@ -17,6 +17,7 @@ MAX_HIGHSCORES = 10
 NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,20}$")  # Nur Buchstaben, Zahlen
 
 
+# MARK: _strip_coments
 def _strip_coments(raw_text: str) -> str:
     """
     Entfernt Kommentare aus dem Text. Kommentare beginnen mit '#'
@@ -34,6 +35,7 @@ def _strip_coments(raw_text: str) -> str:
     return "\n".join(lines)
 
 
+# MARK: load_config
 def load_config(config_path: str) -> Dict[str, Any]:
     """
     Lädt die Konfiguration aus einer JSON-Datei.
@@ -56,6 +58,7 @@ def load_config(config_path: str) -> Dict[str, Any]:
     return default_config
 
 
+# MARK: _sanitize_name
 def _sanitize_name(name: str) -> str:
     """
     Überprüft, ob der Name den Anforderungen entspricht.
@@ -67,6 +70,7 @@ def _sanitize_name(name: str) -> str:
     return name
 
 
+# MARK: load_highscores
 def load_highscores(filename: str) -> List[Dict[str, Any]]:
     """
     Lädt die Highscores aus einer JSON-Datei. Wenn die Datei nicht existiert,
@@ -92,6 +96,7 @@ def load_highscores(filename: str) -> List[Dict[str, Any]]:
         {
             "name": entry["name"],
             "score": entry["score"],
+            "level": entry.get("level", 1)  # Default level to 1 if not present
         }
         for entry in data
         if isinstance(entry, dict)
@@ -101,7 +106,8 @@ def load_highscores(filename: str) -> List[Dict[str, Any]]:
     ]
 
 
-def add_highscore(filename: str, name: str, score: int) -> None:
+# MARK: add_highscore
+def add_highscore(filename: str, name: str, score: int, level: int = 1) -> None:
     """
     Fügt einen neuen Highscore hinzu und
     speichert die aktualisierte Liste in der Datei.
@@ -110,9 +116,10 @@ def add_highscore(filename: str, name: str, score: int) -> None:
     """
     name = _sanitize_name(name)
     score = max(0, int(score)) if isinstance(score, (int, float)) else 0
+    level = max(1, int(level)) if isinstance(level, (int, float)) else 1
 
     scores = load_highscores(filename)
-    scores.append({"name": name, "score": score})
+    scores.append({"name": name, "score": score, "level": level})
     scores.sort(key=lambda x: x["score"], reverse=True)
     scores = scores[:MAX_HIGHSCORES]
 

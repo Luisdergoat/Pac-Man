@@ -1,14 +1,27 @@
 [
   {
     "name": "Edosa",
-    "score": 6040
+    "score": 6040,
+    "level": 1
+  },
+  {
+    "name": "Edos",
+    "score": 4220,
+    "level": 1
   },
   {
     "name": "Luis",
-    "score": 1810
+    "score": 1810,
+    "level": 1
+  },
+  {
+    "name": "Sabell",
+    "score": 950,
+    "level": 1
   },
   {
     "name": "LuisEdos",
-    "score": 270
+    "score": 270,
+    "level": 1
   }
 ]

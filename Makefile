@@ -19,9 +19,9 @@ all: run
 # ------------------------------------------------------------
 install:
 
-	@osascript -e 'tell application "Terminal" to do script "cd $(CURDIR)/$(BACKEND_DIR) && uv venv $(VENV_NAME) && source $(VENV_NAME)/bin/activate && pip install -r requirements.txt && uvicorn server:app --reload --port $(PORT)"'
-	
-	
+	@osascript -e 'tell application "Terminal" to do script "cd $(CURDIR)/$(BACKEND_DIR) && rm -rf $(VENV_NAME) && uv venv $(VENV_NAME) --python 3.12 --seed && $(VENV_NAME)/bin/pip install -r requirements.txt && $(VENV_NAME)/bin/uvicorn server:app --reload --port $(PORT)"'
+
+
 
 # ------------------------------------------------------------
 # run: oeffnet ein neues Terminal-Fenster, aktiviert dort das
