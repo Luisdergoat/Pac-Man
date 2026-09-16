@@ -86,11 +86,14 @@ clients: set[WebSocket] = set()
 async def broadcast_state() -> None:
     payload = json.dumps(game_state.to_dict())
     dead = []
-    for client in list(clients):
+
+    async def send_to_client(client: WebSocket) -> None:
         try:
-            await client.send_text(payload)
+            await asyncio.wait_for(client.send_text(payload), timeout=1.0)
         except Exception:
             dead.append(client)
+
+    await asyncio.gather(*(send_to_client(client) for client in list(clients)))
     for client in dead:
         clients.discard(client)
 
@@ -139,7 +142,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 game_state.leave_to_menu()
                 await broadcast_state()
 
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, RuntimeError):
+        pass
+    finally:
         clients.discard(websocket)
 
 

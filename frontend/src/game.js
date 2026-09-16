@@ -21,6 +21,7 @@ let lives = 3;
 let score = 0;
 let level = 1;
 let edible = false;
+let roundId = 0; // ID der aktuellen Runde, um alte Ticks zu ignorieren
 
 let gameOverHandled = false;
 let awaitingRoundStart = false;
@@ -220,6 +221,11 @@ const socket = new WebSocket(`ws://${window.location.host}/ws`);
 function handleSocketMessage(event) {
     const data = JSON.parse(event.data);
 
+    if (awaitingRoundStart && data.round_id === roundId) {
+        return; // Ignoriere alte Ticks, die vor dem Start der neuen Runde empfangen wurden
+    }
+    roundId = data.round_id;
+
     grid = data.grid;
     if (data.player.row !== player.row || data.player.col !== player.col) {
         const dRow = data.player.row - player.row;
@@ -238,7 +244,6 @@ function handleSocketMessage(event) {
     edible = data.edible;
     gums = data.gums;
     super_gums = data.super_gums;
-
     if (awaitingRoundStart) {
         awaitingRoundStart = false;
         fitCanvasToWindow();
@@ -284,6 +289,9 @@ function beginRound() {
     awaitingRoundStart = true;
     document.getElementById("name-input").value = "";
     document.getElementById("submit-name-btn").disabled = false;
+    canvas.classList.add("hidden");
+    document.getElementById("scoreboard").classList.add("hidden");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     showScreen("loading-screen");
     startLoadingAnimation();
     socket.send(JSON.stringify({ action: "restart" }));

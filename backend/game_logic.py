@@ -127,6 +127,7 @@ class GameState:
     level: int = 1
     level_completed: bool = False
     edible_until: float = 0.0  # Zeit, bis die Geister nicht mehr essbar sind
+    round_id: int = 0  # ID der aktuellen Runde, um alte Ticks zu ignorieren
 
     # MARK: __post_init__
     def __post_init__(self) -> None:
@@ -377,6 +378,7 @@ class GameState:
             "super_gums": list(self.super_gums),
             "game_over": self.game_over,
             "paused": self.paused,
+            "round_id": self.round_id,
         }
 
     # MARK: record_highscore
@@ -393,6 +395,7 @@ class GameState:
         """
         Setzt den Spielzustand zurück, um ein neues Spiel zu starten.
         """
+        self.round_id += 1
         if grid is not None:
             self.grid = grid
         self.lives = 3
