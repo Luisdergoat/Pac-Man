@@ -40,6 +40,35 @@ def _strip_comments(raw_text: str) -> str:
     return "\n".join(lines)
 
 
+# MARK: config_parser
+def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
+    """Parses raw config file and returns only valid entries.
+
+    Args:
+        config (dict[Any, Any]): Raw config dict.
+
+    Returns:
+        dict[str, int | str]: Dict with valid entries.
+    """
+    allowed_keys = {"highscore_filename", "lives", "points_per_pacgum",
+                    "points_per_super_pacgum", "points_per_ghost", "level_max_time"}
+
+    res: dict[str, int | str] = {}
+    for k, v in config.items():
+        if k not in allowed_keys:
+            print(f"Error unknown key in config: {repr(k)}, ignoring.")
+            continue
+
+        if k == "highscore_filename":
+            if not isinstance(v, str) or not v:
+                print(f"Error {k} invalid value {v}")
+                continue
+        elif not isinstance(v, int) or v < 0:
+            print(f"Error {k} invalid value {repr(v)}")
+            continue
+        res.update({k: v})
+    return res
+
 # MARK: load_config
 def load_config(config_path: str) -> dict[str, Any]:
     """Loads config from json file.
@@ -57,7 +86,8 @@ def load_config(config_path: str) -> dict[str, Any]:
             raw_text = f.read()
             stripped_text = _strip_comments(raw_text)
             loaded_config = json.loads(stripped_text)
-            default_config.update(loaded_config)
+            if isinstance(loaded_config, dict):
+                default_config.update(_config_parser(loaded_config))
     except FileNotFoundError:
         print(f"Config file {config_path} not found. "
               f"Using default configuration.")
@@ -205,3 +235,5 @@ def add_highscore(
         print(f"Error writing to highscore file {filename}: {exc}")
         return None
     return scores
+
+print(load_config("config.json"))
