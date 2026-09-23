@@ -1,0 +1,27 @@
+[project]
+name = "Pac-man"
+version = "1.0.0"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.141.1",
+    "uvicorn>=0.53.0",
+    "mazegenerator",
+    "websockets>=16.1.1",
+]
+
+[tool.uv.sources]
+mazegenerator = { path = "wheels/mazegenerator-2.0.1-py3-none-any.whl" }
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+plugins = []
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "mypy>=2.3.1",
+]

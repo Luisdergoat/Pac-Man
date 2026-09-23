@@ -50,8 +50,13 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
     Returns:
         dict[str, int | str]: Dict with valid entries.
     """
-    allowed_keys = {"highscore_filename", "lives", "points_per_pacgum",
-                    "points_per_super_pacgum", "points_per_ghost", "level_max_time"}
+    allowed_keys = {
+        "highscore_filename",
+        "lives",
+        "points_per_pacgum",
+        "points_per_super_pacgum",
+        "points_per_ghost", "level_max_time"
+    }
 
     res: dict[str, int | str] = {}
     for k, v in config.items():
@@ -68,6 +73,7 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
             continue
         res.update({k: v})
     return res
+
 
 # MARK: load_config
 def load_config(config_path: str) -> dict[str, Any]:
@@ -235,5 +241,3 @@ def add_highscore(
         print(f"Error writing to highscore file {filename}: {exc}")
         return None
     return scores
-
-print(load_config("config.json"))
