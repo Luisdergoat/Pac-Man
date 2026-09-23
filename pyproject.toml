@@ -13,6 +13,7 @@ dependencies = [
 mazegenerator = { path = "wheels/mazegenerator-2.0.1-py3-none-any.whl" }
 
 [tool.mypy]
+explicit_package_bases = true
 warn_return_any = true
 warn_unused_ignores = true
 ignore_missing_imports = true
