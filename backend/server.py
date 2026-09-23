@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from config_loader import load_highscores
-from game_logic import GameState
+from Gamestate.gamestate import GameState
 from mazegenerator.mazegenerator import MazeGenerator
 
 
