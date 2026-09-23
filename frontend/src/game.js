@@ -360,6 +360,10 @@ const KEY_TO_DIRECTION = {
     a: "left",
     s: "down",
     d: "right",
+    right: "right",
+    left: "left",
+    down: "down",
+    up: "up",
 };
 
 // MARK: handleKeydown
