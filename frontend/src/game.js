@@ -360,11 +360,25 @@ const KEY_TO_DIRECTION = {
     a: "left",
     s: "down",
     d: "right",
-    right: "right",
-    left: "left",
-    down: "down",
-    up: "up",
+    W: "up",
+    A: "left",
+    S: "down",
+    D: "right",
+    Arrowright: "right",
+    ArrowLeft: "left",
+    ArrowDown: "down",
+    ArrowUp: "up",
 };
+const KONAMI_CODE = [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight",
+]
 
 // MARK: handleKeydown
 function handleKeydown(event) {
@@ -375,6 +389,7 @@ function handleKeydown(event) {
             lastMoveTime = now;
             socket.send(JSON.stringify({ action: "move", direction }));
         }
+//      implementier die logic nach welcher der konami code erkannt wird und dann ein get request and den server sendet.
     }
     if (event.key === "r" || event.key === "R") {
         beginRound();
