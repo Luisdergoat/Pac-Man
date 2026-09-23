@@ -20,7 +20,7 @@ all: run
 install:
 
 	@lsof -ti:$(PORT) | xargs kill -9 2>/dev/null || true
-	@osascript -e 'tell application "Terminal" to do script "cd $(CURDIR)/$(BACKEND_DIR) && rm -rf $(VENV_NAME) && uv venv $(VENV_NAME) --python 3.12 --seed && $(VENV_NAME)/bin/pip install -r requirements.txt && $(VENV_NAME)/bin/uvicorn server:app --reload --port $(PORT)"'
+	@osascript -e 'tell application "Terminal" to do script "cd $(CURDIR)/$(BACKEND_DIR) && rm -rf $(VENV_NAME) && uv venv $(VENV_NAME) --python 3.12 --seed && source $(VENV_NAME)/bin/activate && $(VENV_NAME)/bin/pip install -r requirements.txt && $(VENV_NAME)/bin/uvicorn server:app --reload --port $(PORT)"'
 
 
 
