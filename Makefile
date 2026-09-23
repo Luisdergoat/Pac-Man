@@ -1,6 +1,6 @@
 ENTRY = pac_man.py
 CONFIG = "config.json"
-BACKEND = backend/
+SRC = src/
 
 install:
 	uv sync
@@ -17,9 +17,9 @@ clean:
 	find . -type d -name .pytest_cache -exec rm -rf {} +
 
 lint:
-	uv run flake8 $(BACKEND) $(ENTRY)
-	uv run mypy $(BACKEND) $(ENTRY)
+	uv run flake8 $(SRC) $(ENTRY)
+	uv run mypy $(SRC) $(ENTRY)
 
 lint-strict:
-	uv run flake8 $(BACKEND) $(ENTRY)
-	uv run mypy $(BACKEND) $(ENTRY) --strict
+	uv run flake8 $(SRC) $(ENTRY)
+	uv run mypy $(SRC) $(ENTRY) --strict
