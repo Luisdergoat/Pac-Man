@@ -12,7 +12,8 @@ DEFAULT_CONFIG = {
     "points_per_ghost": 200,
     "level_max_time": 90,
 }
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+CONFIG_PATH = PROJECT_ROOT / "config.json"
 MAX_HIGHSCORES = 10
 
 # Only allow alphanum charactes min 1 max 20.
@@ -57,7 +58,7 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
         "lives",
         "points_per_pacgum",
         "points_per_super_pacgum",
-        "points_per_ghost", "level_max_time"
+        "points_per_ghost"
     }
 
     res: dict[str, int | str] = {}
