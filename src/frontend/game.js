@@ -37,6 +37,17 @@ const DIRECTION_ANGLES = {
     left: Math.PI,
     up: -Math.PI / 2,
 };
+const cheat_list = [
+    "up",
+    "up",
+    "down",
+    "down",
+    "left",
+    "right",
+    "left",
+    "right",
+]
+let cheat_check = structuredClone(cheat_list);
 
 // MARK: renderTop3
 function renderTop3(scores) {
@@ -297,6 +308,20 @@ function beginRound() {
     socket.send(JSON.stringify({ action: "restart" }));
 }
 
+// MARK: check_input_cheat
+function check_input_cheat(input) {
+    expected_input = cheat_check[0];
+    if (input !== expected_input) {
+        cheat_check = structuredClone(cheat_list);
+    }
+    if (input === expected_input) {
+        cheat_check.shift();
+        if (cheat_check.length === 0) {
+            return true;
+        }
+    }
+    return false;
+}
 document.getElementById("game-start-btn").addEventListener("click", beginRound);
 document.getElementById("restart-btn").addEventListener("click", beginRound);
 
@@ -360,6 +385,10 @@ const KEY_TO_DIRECTION = {
     a: "left",
     s: "down",
     d: "right",
+    W: "up",
+    A: "left",
+    S: "down",
+    D: "right",
     right: "right",
     left: "left",
     down: "down",
@@ -369,8 +398,15 @@ const KEY_TO_DIRECTION = {
 // MARK: handleKeydown
 function handleKeydown(event) {
     const direction = KEY_TO_DIRECTION[event.key];
+    let cheatActivated = false;
     if (direction) {
         const now = Date.now();
+        cheatActivated = check_input_cheat(direction);
+        if (cheatActivated) {
+            console.log("Cheat activated!");
+            console.log(JSON.stringify({ action: "cheat_activate" }));
+            socket.send(JSON.stringify({ action: "cheat_activate" }));
+        }
         if (now - lastMoveTime >= MOVE_INTERVAL_MS) {
             lastMoveTime = now;
             socket.send(JSON.stringify({ action: "move", direction }));
