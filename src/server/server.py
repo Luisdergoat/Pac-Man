@@ -99,8 +99,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                     await broadcast_state()
 
                 case "cheat_activate":
-                    print("Cheat activated!")
-                    os.killpg(os.getpgid(0), signal.SIGTERM)
+                    pass
                 # die logik die den spieler unsterblich macht
 
     except (WebSocketDisconnect, RuntimeError):
