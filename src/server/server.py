@@ -5,6 +5,7 @@ import json
 import os
 import signal
 import random
+import webbrowser
 from typing import Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -16,6 +17,8 @@ from src.game_logic import build_maze, GameLogic
 
 
 app = FastAPI()
+PORT = 5000
+URL = f"http://localhost:{PORT}"
 TICK_RATE = 0.3
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -31,7 +34,8 @@ async def start_game_loop() -> None:
 
 # MARK: game_loop
 async def game_loop() -> None:
-    # game_state = GameState(build_maze(seed=42))
+    game_logic.g_state.grid = build_maze(0)
+    webbrowser.open(URL)
     # ! While true is most of the time not a good idea.
     while True:
         await asyncio.sleep(TICK_RATE)

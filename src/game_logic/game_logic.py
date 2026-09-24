@@ -96,7 +96,9 @@ class GameLogic:
         if self.g_state.lives <= 0:
             self.g_state.game_over = True
             return
-        occupied = {(ghost.row, ghost.col) for ghost in self.g_state.ghosts}
+        occupied = {
+            (ghost.row, ghost.col) for ghost in self.g_state.ghosts
+            if not ghost.on_cooldown}
         for ghost in self.g_state.ghosts:
             occupied.discard((ghost.row, ghost.col))  # Geiter entfernen
             lhelp.move_ghost_towards_player(
@@ -176,7 +178,10 @@ class GameLogic:
                 },
             "ghosts": [
                 {
-                    "row": g.row, "col": g.col, "color": g.color
+                    "row": g.row,
+                    "col": g.col,
+                    "color": g.color,
+                    "on_cooldown": g.on_cooldown
                     } for g in self.g_state.ghosts],
             "lives": self.g_state.lives,
             "score": self.g_state.score,
