@@ -403,8 +403,6 @@ function handleKeydown(event) {
         const now = Date.now();
         cheatActivated = check_input_cheat(direction);
         if (cheatActivated) {
-            console.log("Cheat activated!");
-            console.log(JSON.stringify({ action: "cheat_activate" }));
             socket.send(JSON.stringify({ action: "cheat_activate" }));
         }
         if (now - lastMoveTime >= MOVE_INTERVAL_MS) {
