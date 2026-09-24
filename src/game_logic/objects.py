@@ -8,6 +8,7 @@ class Ghost:
     color: str
     start_row: int = 0
     start_col: int = 0
+    on_cooldown: bool = False
 
 
 # MARK: Gamestate

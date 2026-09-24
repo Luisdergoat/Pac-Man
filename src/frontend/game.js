@@ -214,7 +214,9 @@ function draw() {
         ctx.fill();
     });
     ghost.forEach(g => {
-        drawGhost(g.col * tileSize, g.row * tileSize, tileSize, g.color);
+        if (!g.on_cooldown) {
+            drawGhost(g.col * tileSize, g.row * tileSize, tileSize, g.color);
+        }
     });
     drawPacman(
         player.col * tileSize + tileSize / 2,

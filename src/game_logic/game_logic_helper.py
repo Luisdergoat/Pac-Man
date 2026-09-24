@@ -1,5 +1,6 @@
 import random
 import time
+import asyncio
 from collections import deque
 from src.game_logic.objects import GameState, Ghost
 
@@ -121,6 +122,12 @@ class LogicHelper:
             return "Game Over"
         return ""
 
+    @staticmethod
+    async def _ghost_respawn(ghost: Ghost, row: int, col: int) -> None:
+        await asyncio.sleep(5)
+        ghost.row, ghost.col = row, col
+        ghost.on_cooldown = False
+
     # MARK: check_collision
     @classmethod
     def check_collision(
@@ -129,12 +136,16 @@ class LogicHelper:
         Checkt, ob der Spieler ein Geist berührt.
         """
         for ghost in gamestate.ghosts:
+            if ghost.on_cooldown:
+                continue
             if ghost.row == gamestate.player_row \
                     and ghost.col == gamestate.player_col:
                 if cls.is_edible(gamestate):
                     gamestate.score += POINTS_PER_GHOST
-                    ghost.row, ghost.col = cls.find_nearest_open_cell(
+                    ghost.on_cooldown = True
+                    row, col = cls.find_nearest_open_cell(
                         gamestate.grid, ghost.start_row, ghost.start_col)
+                    asyncio.create_task(cls._ghost_respawn(ghost, row, col))
                 else:
                     result = cls.respawn_after_hit(gamestate)
                     if result == "Game Over":
