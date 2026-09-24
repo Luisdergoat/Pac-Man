@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
 import re
+from pathlib import Path
 from typing import Any
 
 DEFAULT_CONFIG = {
@@ -11,6 +12,8 @@ DEFAULT_CONFIG = {
     "points_per_ghost": 200,
     "level_max_time": 90,
 }
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+CONFIG_PATH = PROJECT_ROOT / "config.json"
 MAX_HIGHSCORES = 10
 
 # Only allow alphanum charactes min 1 max 20.
@@ -55,7 +58,7 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
         "lives",
         "points_per_pacgum",
         "points_per_super_pacgum",
-        "points_per_ghost", "level_max_time"
+        "points_per_ghost"
     }
 
     res: dict[str, int | str] = {}
@@ -76,32 +79,32 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
 
 
 # MARK: load_config
-def load_config(config_path: str) -> dict[str, Any]:
+def load_config() -> dict[str, Any]:
     """Loads config from json file.
     If an error accours while reading use default values.
 
     Args:
-        config_path (str): File path to json file.
+        CONFIG_PATH (str): File path to json file.
 
     Returns:
         dict[str, Any]: Returns parsed json data or fallback data.
     """
     default_config = DEFAULT_CONFIG.copy()
     try:
-        with open(config_path, "r") as f:
+        with open(CONFIG_PATH, "r") as f:
             raw_text = f.read()
             stripped_text = _strip_comments(raw_text)
             loaded_config = json.loads(stripped_text)
             if isinstance(loaded_config, dict):
                 default_config.update(_config_parser(loaded_config))
     except FileNotFoundError:
-        print(f"Config file {config_path} not found. "
+        print(f"Config file {CONFIG_PATH} not found. "
               f"Using default configuration.")
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON from {config_path}: {e}. "
+        print(f"Error decoding JSON from {CONFIG_PATH}: {e}. "
               f"Using default configuration.")
     except PermissionError:
-        print(f"No permission to open config file {config_path}. "
+        print(f"No permission to open config file {CONFIG_PATH}. "
               f"Using default configuration.")
     return default_config
 

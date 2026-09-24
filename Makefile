@@ -16,6 +16,10 @@ clean:
 	find . -type d -name .mypy_cache -exec rm -rf {} +
 	find . -type d -name .pytest_cache -exec rm -rf {} +
 
+fclean: clean
+	rm -rf .venv
+	rm -rf uv.lock
+
 lint:
 	uv run flake8 $(SRC) $(ENTRY)
 	uv run mypy $(SRC) $(ENTRY)

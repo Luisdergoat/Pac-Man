@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.loader import add_highscore
+from src.loader import add_highscore, load_config
 from src.game_logic.objects import Ghost, GameState
 from src.game_logic.game_logic_helper import LogicHelper as lhelp
 from src.game_logic.maze import build_maze
@@ -11,11 +11,11 @@ from dataclasses import dataclass, field
 
 
 Grid = list[list[int]]
-GHOST_CHASE_CHANCE = 0.7  # Wahrscheinlichkeit, dass der Geist den Spieler jagt
-POINTS_PER_GUM = 10
-POINTS_PER_SUPER_GUM = 50
-POINTS_PER_GHOST = 200
-EDIBLE_DURATION = 8  # Dauer, für die Geister essbar sind (in Sekunden)
+GHOST_CHASE_CHANCE = 0.7
+POINTS_PER_GUM = load_config().get("points_per_pacgum")
+POINTS_PER_SUPER_GUM = load_config().get("points_per_super_pacgum")
+POINTS_PER_GHOST = load_config().get("points_per_ghost")
+EDIBLE_DURATION = 8
 
 DIRECTIONS: dict[str, tuple[int, int]] = {
     "up": (-1, 0),
@@ -38,6 +38,7 @@ class GameLogic:
         """
         Setzt die Startposition des Spielers und der Geiste.
         """
+        self.g_state.init_lives(load_config().get("lives"))
         self._setup(GHOST_COLORS)
 
     # MARK: setup
@@ -124,10 +125,11 @@ class GameLogic:
         """
         Setzt den Spielzustand zurück, um ein neues Spiel zu starten.
         """
+        config = load_config()
         self.g_state.round_id += 1
         if grid is not None:
             self.g_state.grid = grid
-        self.g_state.lives = 3
+        self.g_state.lives = config.get("lives")
         self.g_state.score = 0
         self.g_state.level = 1
         self.g_state.level_completed = False

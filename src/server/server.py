@@ -103,8 +103,8 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                     await broadcast_state()
 
                 case "cheat_activate":
-                    pass
-                # die logik die den spieler unsterblich macht
+                    print("Cheat activated!")   # Paste Logic here
+                    await broadcast_state()
 
     except (WebSocketDisconnect, RuntimeError):
         pass

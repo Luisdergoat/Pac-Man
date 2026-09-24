@@ -27,5 +27,8 @@ class GameState:
     paused: bool = False
     level: int = 1
     level_completed: bool = False
-    edible_until: float = 0.0  # Zeit, bis die Geister nicht mehr essbar sind
-    round_id: int = 0  # ID der aktuellen Runde, um alte Ticks zu ignorieren
+    edible_until: float = 0.0
+    round_id: int = 0
+
+    def init_lives(self, lives: int) -> None:
+        self.lives = lives
