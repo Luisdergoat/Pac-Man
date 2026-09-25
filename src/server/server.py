@@ -22,9 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent
 def create_app(config_file: str, url: str) -> FastAPI:
     clients: set[WebSocket] = set()
     game_logic = GameLogic(config_file)
-    print(config_file)
-    print(game_logic.g_state.paused)
-
     app = FastAPI()
 
     # MARK: start_game_loop
