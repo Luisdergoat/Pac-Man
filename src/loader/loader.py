@@ -79,7 +79,7 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
 
 
 # MARK: load_config
-def load_config() -> dict[str, Any]:
+def load_config(config_file: str) -> dict[str, Any]:
     """Loads config from json file.
     If an error accours while reading use default values.
 
@@ -91,7 +91,7 @@ def load_config() -> dict[str, Any]:
     """
     default_config = DEFAULT_CONFIG.copy()
     try:
-        with open(CONFIG_PATH, "r") as f:
+        with open(config_file, "r") as f:
             raw_text = f.read()
             stripped_text = _strip_comments(raw_text)
             loaded_config = json.loads(stripped_text)
