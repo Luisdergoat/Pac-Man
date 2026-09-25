@@ -75,4 +75,7 @@ export function handleKeydown(event) {
     if (event.key === "p" || event.key === "P") {
         socket.send(JSON.stringify({ action: "pause_toggle" }));
     }
+    if (event.key === " ") {
+        socket.send(JSON.stringify({ action: "skip_level"}));
+    }
 }
