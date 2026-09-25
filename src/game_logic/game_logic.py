@@ -7,14 +7,11 @@ from src.game_logic.maze import build_maze
 from typing import Optional, Any
 from random import randint
 
-from dataclasses import dataclass, field
-
-
 Grid = list[list[int]]
 GHOST_CHASE_CHANCE = 0.7
-POINTS_PER_GUM = load_config().get("points_per_pacgum")
-POINTS_PER_SUPER_GUM = load_config().get("points_per_super_pacgum")
-POINTS_PER_GHOST = load_config().get("points_per_ghost")
+# POINTS_PER_GUM = load_config().get("points_per_pacgum")
+# POINTS_PER_SUPER_GUM = load_config().get("points_per_super_pacgum")
+# POINTS_PER_GHOST = load_config().get("points_per_ghost")
 EDIBLE_DURATION = 8
 
 DIRECTIONS: dict[str, tuple[int, int]] = {
@@ -28,17 +25,18 @@ GHOST_COLORS = ["red", "pink", "cyan", "orange"]
 
 
 # MARK: GameLogic
-@dataclass
 class GameLogic:
-    g_state: GameState = field(
-        default_factory=lambda: GameState(build_maze(randint(0, 1000))))
+    def __init__(self, config_name: str) -> None:
+        self.g_state = GameState(build_maze(randint(0, 1000)))
+        self.config = load_config(config_name)
+        # self.g_state.init_lives(self.config["lives"])
+        # self.__post_init__()
 
     # MARK: __post_init__
     def __post_init__(self) -> None:
         """
         Setzt die Startposition des Spielers und der Geiste.
         """
-        self.g_state.init_lives(load_config().get("lives"))
         self._setup(GHOST_COLORS)
 
     # MARK: setup
@@ -78,11 +76,11 @@ class GameLogic:
             self.g_state.player_row, self.g_state.player_col = nr, nc
             lhelp.collect_gums(
                 self.g_state,
-                POINTS_PER_GUM,
-                POINTS_PER_SUPER_GUM,
+                self.config["points_per_pacgum"],
+                self.config["points_per_super_pacgum"],
                 EDIBLE_DURATION
             )
-        lhelp.check_collision(self.g_state, POINTS_PER_GHOST)
+        lhelp.check_collision(self.g_state, self.config["points_per_ghost"])
 
     # MARK: tick
     def tick(self) -> None:
@@ -108,7 +106,7 @@ class GameLogic:
                 blocked=occupied
             )
             occupied.add((ghost.row, ghost.col))
-        lhelp.check_collision(self.g_state, POINTS_PER_GHOST)
+        lhelp.check_collision(self.g_state, self.config["points_per_ghost"])
 
     # MARK: cheat_mode
     def cheat_mode(self) -> None:
@@ -133,11 +131,11 @@ class GameLogic:
         """
         Setzt den Spielzustand zurück, um ein neues Spiel zu starten.
         """
-        config = load_config()
+        # config = load_config()
         self.g_state.round_id += 1
         if grid is not None:
             self.g_state.grid = grid
-        self.g_state.lives = config.get("lives")
+        self.g_state.lives = self.config["lives"]
         self.g_state.score = 0
         self.g_state.level = 1
         self.g_state.level_completed = False
