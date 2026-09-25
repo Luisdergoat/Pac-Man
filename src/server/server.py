@@ -106,6 +106,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                     game_logic.cheat_mode()
                     await broadcast_state()
 
+                case "skip_level":
+                    game_logic.skip_level()
+                    await broadcast_state()
+
     except (WebSocketDisconnect, RuntimeError):
         pass
     finally:

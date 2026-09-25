@@ -118,6 +118,16 @@ class GameLogic:
         else:
             self.g_state.edible_until = 0.0
 
+    # MARK: check_cheat
+    def check_cheat(self) -> bool:
+        return self.g_state.cheats_enabled
+
+    # MARK: skip_level
+    def skip_level(self) -> None:
+        if self.g_state.cheats_enabled:
+            new_grid = build_maze(randint(0, 999999))
+            self.next_level(new_grid)
+
     # MARK: record_highscore
     def record_highscore(
         self, name: str, filename: str
