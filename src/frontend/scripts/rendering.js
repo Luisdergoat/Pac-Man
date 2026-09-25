@@ -91,7 +91,10 @@ export function draw() {
         ctx.fill();
     });
     state.ghost.forEach(g => {
-        drawGhost(g.col * state.tileSize, g.row * state.tileSize, state.tileSize, g.color);
+        if (!g.on_cooldown)
+        {
+            drawGhost(g.col * state.tileSize, g.row * state.tileSize, state.tileSize, g.color);
+        }
     });
     drawPacman(
         state.player.col * state.tileSize + state.tileSize / 2,
