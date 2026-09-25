@@ -110,6 +110,14 @@ class GameLogic:
             occupied.add((ghost.row, ghost.col))
         lhelp.check_collision(self.g_state, POINTS_PER_GHOST)
 
+    # MARK: cheat_mode
+    def cheat_mode(self) -> None:
+        self.g_state.cheats_enabled = not self.g_state.cheats_enabled
+        if self.g_state.cheats_enabled is True:
+            self.g_state.edible_until = float('inf')
+        else:
+            self.g_state.edible_until = 0.0
+
     # MARK: record_highscore
     def record_highscore(
         self, name: str, filename: str
