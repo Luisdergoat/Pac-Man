@@ -21,7 +21,7 @@ document.querySelectorAll(".pacman-hero").forEach(injectHeroMazeBackground);
 socket.onmessage = handleSocketMessage;
 
 document.getElementById("game-start-btn").addEventListener("click", beginRound);
-document.getElementById("restart-btn").addEventListener("click", beginRound);
+document.getElementById("restart-btn").addEventListener("click", backToStartScreen);
 document.getElementById("settings-btn").addEventListener("click", openSettingsScreen);
 document.getElementById("settings-back-btn").addEventListener("click", backToStartScreen);
 document.getElementById("scoreboard-btn").addEventListener("click", openScoreboardScreen);
