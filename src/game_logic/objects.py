@@ -29,6 +29,7 @@ class GameState:
     level_completed: bool = False
     edible_until: float = 0.0
     round_id: int = 0
+    cheats_enabled: bool = False
 
     def init_lives(self, lives: int) -> None:
         self.lives = lives

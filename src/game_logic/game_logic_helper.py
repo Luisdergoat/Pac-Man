@@ -51,7 +51,8 @@ class LogicHelper:
         elif pos in gamestate.super_gums:
             gamestate.super_gums.discard(pos)
             gamestate.score += POINTS_PER_SUPER_GUM
-            gamestate.edible_until = time.monotonic() + EDIBLE_DURATION
+            if not gamestate.cheats_enabled:
+                gamestate.edible_until = time.monotonic() + EDIBLE_DURATION
 
         if not gamestate.gums and not gamestate.super_gums:
             gamestate.level_completed = True

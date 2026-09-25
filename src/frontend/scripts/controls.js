@@ -59,6 +59,7 @@ export function handleKeydown(event) {
         const now = Date.now();
         cheatActivated = check_input_cheat(direction);
         if (cheatActivated) {
+            cheatActivated = false;
             socket.send(JSON.stringify({ action: "cheat_activate" }));
         }
         if (now - state.lastMoveTime >= MOVE_INTERVAL_MS) {
@@ -67,7 +68,9 @@ export function handleKeydown(event) {
         }
     }
     if (event.key === "r" || event.key === "R") {
+        if (!state.gameOverHandled) {
         beginRound();
+        }
     }
     if (event.key === "p" || event.key === "P") {
         socket.send(JSON.stringify({ action: "pause_toggle" }));
