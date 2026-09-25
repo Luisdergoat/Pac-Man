@@ -85,8 +85,7 @@ def create_app(config_file: str, url: str) -> FastAPI:
 
                     case "submit_name":
                         game_logic.record_highscore(
-                            data.get("name", ""),
-                            game_logic.config["highscore_filename"])
+                            data.get("name", ""), "highscores.json")
                         await broadcast_state()
 
                     case "restart":
@@ -105,6 +104,10 @@ def create_app(config_file: str, url: str) -> FastAPI:
 
                     case "cheat_activate":
                         game_logic.cheat_mode()
+                        await broadcast_state()
+
+                    case "skip_level":
+                        game_logic.skip_level()
                         await broadcast_state()
 
         except (WebSocketDisconnect, RuntimeError):
@@ -146,78 +149,3 @@ def create_app(config_file: str, url: str) -> FastAPI:
 
     app.mount("/static", StaticFiles(directory="src/frontend"), name="static")
     return app
-                        new_grid = await asyncio.to_thread(
-                            build_maze, seed=random.randint(0, 999999))
-                        game_logic.next_level(new_grid)
-                    await broadcast_state()
-
-                case "submit_name":
-                    game_logic.record_highscore(
-                        data.get("name", ""), "highscores.json")
-                    await broadcast_state()
-
-                case "restart":
-                    # Make function for that.
-                    new_grid = await asyncio.to_thread(build_maze, seed=42)
-                    game_logic.reset(new_grid)
-                    await broadcast_state()
-
-                case "pause_toggle":
-                    game_logic.toggle_pause()
-                    await broadcast_state()
-
-                case "leave_to_menu":
-                    game_logic.leave_to_menu()
-                    await broadcast_state()
-
-                case "cheat_activate":
-                    game_logic.cheat_mode()
-                    await broadcast_state()
-
-                case "skip_level":
-                    game_logic.skip_level()
-                    await broadcast_state()
-
-    except (WebSocketDisconnect, RuntimeError):
-        pass
-    finally:
-        clients.discard(websocket)
-
-
-# MARK: index
-@app.get("/")
-def index() -> FileResponse:
-    return FileResponse("src/frontend/index.html")
-
-
-# MARK: get_maze
-@app.get("/maze")
-def get_maze() -> list[list[int]]:
-    return game_logic.g_state.grid
-
-
-# MARK: get_highscores
-@app.get("/highscores")
-def get_highscores() -> list[dict[str, Any]]:
-    scores = load_highscores("highscores.json")
-    scores.sort(key=lambda entry: entry.get("score", 0), reverse=True)
-    return scores
-
-
-# MARK: shutdown
-@app.post("/shutdown")
-async def shutdown() -> dict[str, str]:
-    """
-    Beendet den Server. Dies ist nützlich für Tests,
-    um den Server nach dem Testen zu stoppen.
-    """
-    # MARK: _kill
-    async def _kill() -> None:
-        await asyncio.sleep(0.2)
-        os.killpg(os.getpgid(0), signal.SIGTERM)
-
-    asyncio.create_task(_kill())
-    return {"status": "Server is shutting down..."}
-
-
-app.mount("/static", StaticFiles(directory="src/frontend"), name="static")
