@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from src.loader import add_highscore, load_config
-from src.game_logic.objects import Ghost, GameState
+from src.game_logic.objects import Ghost, GameState, State
 from src.game_logic.game_logic_helper import LogicHelper as lhelp
 from src.game_logic.maze import build_maze
 from typing import Optional, Any
@@ -29,8 +29,6 @@ class GameLogic:
     def __init__(self, config_name: str) -> None:
         self.g_state = GameState(build_maze(randint(0, 1000)))
         self.config = load_config(config_name)
-        # self.g_state.init_lives(self.config["lives"])
-        # self.__post_init__()
 
     # MARK: __post_init__
     def __post_init__(self) -> None:
@@ -92,8 +90,11 @@ class GameLogic:
         if self.g_state.paused:
             return
         if self.g_state.lives <= 0:
-            self.g_state.game_over = True
+            self.g_state.state = State.DEAD
             return
+        if self.g_state.level_max_time <= 0:
+            self.g_state.state = State.TIMEDOUT
+        self.g_state.level_max_time -= 0.3
         occupied = {
             (ghost.row, ghost.col) for ghost in self.g_state.ghosts
             if not ghost.on_cooldown}
@@ -148,10 +149,11 @@ class GameLogic:
         self.g_state.lives = self.config["lives"]
         self.g_state.score = 0
         self.g_state.level = 1
+        self.g_state.level_max_time = self.config["level_max_time"]
         self.g_state.level_completed = False
         self.g_state.edible_until = 0.0
         self.g_state.started = False
-        self.g_state.game_over = False
+        self.g_state.state = State.ALIVE
         self._setup(GHOST_COLORS)
 
     # MARK: next_level
@@ -163,6 +165,7 @@ class GameLogic:
         self.g_state.level_completed = False
         self.g_state.grid = grid
         self.g_state.edible_until = 0.0
+        self.g_state.level_max_time = self.config["level_max_time"]
         self._setup(GHOST_COLORS)
 
     # MARK: toggle_pause
@@ -205,7 +208,8 @@ class GameLogic:
             "edible": lhelp.is_edible(self.g_state),
             "gums": list(self.g_state.gums),
             "super_gums": list(self.g_state.super_gums),
-            "game_over": self.g_state.game_over,
+            "game_over": self.g_state.state,
             "paused": self.g_state.paused,
             "round_id": self.g_state.round_id,
+            "level_max_time": self.g_state.level_max_time
         }

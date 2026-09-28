@@ -2,7 +2,7 @@ import random
 import time
 import asyncio
 from collections import deque
-from src.game_logic.objects import GameState, Ghost
+from src.game_logic.objects import GameState, Ghost, State
 
 
 class LogicHelper:
@@ -105,7 +105,7 @@ class LogicHelper:
 
     # MARK: respawn_after_hit
     @classmethod
-    def respawn_after_hit(cls, gamestate: GameState) -> str:
+    def respawn_after_hit(cls, gamestate: GameState) -> bool:
         """
         Respawnt den Spieler an der Startposition und reduziert die Leben.
         """
@@ -120,8 +120,8 @@ class LogicHelper:
                 ghost.row, ghost.col = cls.find_nearest_open_cell(
                     gamestate.grid, ghost.start_row, ghost.start_col)
         else:
-            return "Game Over"
-        return ""
+            return False
+        return True
 
     @staticmethod
     async def _ghost_respawn(ghost: Ghost, row: int, col: int) -> None:
@@ -148,9 +148,8 @@ class LogicHelper:
                         gamestate.grid, ghost.start_row, ghost.start_col)
                     asyncio.create_task(cls._ghost_respawn(ghost, row, col))
                 else:
-                    result = cls.respawn_after_hit(gamestate)
-                    if result == "Game Over":
-                        gamestate.game_over = True
+                    if not cls.respawn_after_hit(gamestate):
+                        gamestate.state = State.DEAD
 
     # MARK: reachable_cells
     @staticmethod

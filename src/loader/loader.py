@@ -5,12 +5,12 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_CONFIG = {
-    "highscore_file": "highscore.json",
+    "highscore_filename": "highscore.json",
     "lives": 3,
-    "points_per_gum": 10,
-    "points_per_super_gum": 50,
+    "points_per_pacgum": 10,
+    "points_per_super_pacgum": 50,
     "points_per_ghost": 200,
-    "level_max_time": 90,
+    "level_max_time": 90
 }
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 CONFIG_PATH = PROJECT_ROOT / "config.json"
@@ -53,17 +53,10 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
     Returns:
         dict[str, int | str]: Dict with valid entries.
     """
-    allowed_keys = {
-        "highscore_filename",
-        "lives",
-        "points_per_pacgum",
-        "points_per_super_pacgum",
-        "points_per_ghost"
-    }
 
-    res: dict[str, int | str] = {}
+    res: dict[str, int | str] = DEFAULT_CONFIG.copy()
     for k, v in config.items():
-        if k not in allowed_keys:
+        if k not in list(DEFAULT_CONFIG.keys()):
             print(f"Error unknown key in config: {repr(k)}, ignoring.")
             continue
 
