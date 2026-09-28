@@ -17,7 +17,7 @@ CONFIG_PATH = PROJECT_ROOT / "config.json"
 MAX_HIGHSCORES = 10
 
 # Only allow alphanum charactes min 1 max 20.
-NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,20}$")
+NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,10}$")
 
 
 # MARK: _strip_coments
