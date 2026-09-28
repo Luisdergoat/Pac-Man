@@ -1,4 +1,4 @@
-ENTRY = pac_man.py
+ENTRY = pac-man.py
 CONFIG = "config.json"
 SRC = src/
 

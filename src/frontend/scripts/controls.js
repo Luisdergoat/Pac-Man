@@ -18,13 +18,13 @@ export function beginRound() {
 
 // MARK: check_input_cheat
 export function check_input_cheat(input) {
-    const expected_input = state.cheat_check[0];
-    if (input !== expected_input) {
+    if (input !== state.cheat_check[0]) {
         state.cheat_check = structuredClone(cheat_list);
     }
-    if (input === expected_input) {
+    if (input === state.cheat_check[0]) {
         state.cheat_check.shift();
         if (state.cheat_check.length === 0) {
+            state.cheat_check = structuredClone(cheat_list);
             return true;
         }
     }
@@ -48,6 +48,9 @@ export function resumeGame() {
 export function leaveToMenu() {
     state.pauseHandled = false;
     socket.send(JSON.stringify({ action: "leave_to_menu" }));
+    canvas.classList.add("hidden");
+    document.getElementById("scoreboard").classList.add("hidden");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     showScreen("start-screen");
 }
 
