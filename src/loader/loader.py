@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json
 import re
-from pathlib import Path
+import sys
 from typing import Any
 
 DEFAULT_CONFIG = {
@@ -12,10 +12,18 @@ DEFAULT_CONFIG = {
     "points_per_ghost": 200,
     "level_max_time": 90
 }
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CONFIG_PATH = PROJECT_ROOT / "config.json"
-MAX_HIGHSCORES = 10
 
+
+# MARK: get_config_path
+def get_config_path():
+    if len(sys.argv) != 2:
+        print("Usage: python3 pac_man.py <config.json>")
+        sys.exit(1)
+    return sys.argv[1]
+
+
+CONFIG_PATH = get_config_path()
+MAX_HIGHSCORES = 10
 # Only allow alphanum charactes min 1 max 20.
 NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,10}$")
 
