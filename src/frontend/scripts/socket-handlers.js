@@ -29,6 +29,7 @@ export function handleSocketMessage(event) {
     state.edible = data.edible;
     state.gums = data.gums;
     state.super_gums = data.super_gums;
+    state.time = data.time;
     if (state.awaitingRoundStart) {
         state.awaitingRoundStart = false;
         fitCanvasToWindow();
@@ -40,9 +41,21 @@ export function handleSocketMessage(event) {
         }, 250);
     }
 
-    if (data.game_over) {
+    if (data.game_over == 1) {
         if (!state.gameOverHandled) {
             state.gameOverHandled = true;
+            let gameoverMessage = "No lives left! Game Over!";
+            document.getElementById("game_over_tag").textContent = gameoverMessage;
+            document.getElementById("overlay-score").textContent = state.score;
+            document.getElementById("overlay-level").textContent = state.level;
+            showScreen("overlay");
+        }
+    }
+    else if (data.game_over == 2) {
+        if (!state.gameOverHandled) {
+            state.gameOverHandled = true;
+            let gameoverMessage = "Time's up! Game Over!";
+            document.getElementById("game_over_tag").textContent = gameoverMessage;
             document.getElementById("overlay-score").textContent = state.score;
             document.getElementById("overlay-level").textContent = state.level;
             showScreen("overlay");
@@ -63,5 +76,6 @@ export function handleSocketMessage(event) {
     document.getElementById("level").textContent = state.level;
     document.getElementById("score").textContent = state.score;
     document.getElementById("lives").textContent = state.lives;
+    document.getElementById("time").textContent = Math.ceil(state.time);
     draw();
 }

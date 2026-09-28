@@ -94,7 +94,7 @@ class GameLogic:
             return
         if self.g_state.level_max_time <= 0:
             self.g_state.state = State.TIMEDOUT
-        self.g_state.level_max_time -= 0.3
+        self.g_state.level_max_time -= 0.5
         occupied = {
             (ghost.row, ghost.col) for ghost in self.g_state.ghosts
             if not ghost.on_cooldown}
@@ -211,5 +211,6 @@ class GameLogic:
             "game_over": self.g_state.state,
             "paused": self.g_state.paused,
             "round_id": self.g_state.round_id,
-            "level_max_time": self.g_state.level_max_time
+            "level_max_time": self.g_state.level_max_time,
+            "time": self.g_state.level_max_time,
         }
