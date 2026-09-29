@@ -9,7 +9,7 @@ run: install
 	uv run python3 $(ENTRY) $(ARGS)
 
 debug: install
-	uv run python3 pdb $(ENTRY) $(ARGS)
+	uv run python3 -m pdb $(ENTRY) $(ARGS)
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
