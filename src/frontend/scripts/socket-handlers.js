@@ -4,6 +4,10 @@ import { showScreen, hideAllScreens, finishLoadingAnimation } from "./screens.js
 
 // MARK: handleSocketMessage
 export function handleSocketMessage(event) {
+    if (state.gameClosed) {
+        return;
+    }
+
     const data = JSON.parse(event.data);
 
     if (state.awaitingRoundStart && data.round_id === state.roundId) {
@@ -71,6 +75,9 @@ export function handleSocketMessage(event) {
     } else if (state.pauseHandled) {
         state.pauseHandled = false;
         hideAllScreens();
+    }
+    if (state.time <= 0) {
+        state.time = 0;
     }
 
     document.getElementById("level").textContent = state.level;

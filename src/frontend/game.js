@@ -6,6 +6,7 @@ import {
     backToStartScreen,
     openScoreboardScreen,
     scoreboardBackToStartScreen,
+    resumeFromExitMenu,
 } from "./scripts/screens.js";
 import { handleSocketMessage } from "./scripts/socket-handlers.js";
 import {
@@ -13,6 +14,7 @@ import {
     submitPlayerName,
     resumeGame,
     leaveToMenu,
+    confirmExit,
     handleKeydown,
 } from "./scripts/controls.js";
 
@@ -29,6 +31,8 @@ document.getElementById("scoreboard-back-btn").addEventListener("click", scorebo
 document.getElementById("submit-name-btn").addEventListener("click", submitPlayerName);
 document.getElementById("resume-btn").addEventListener("click", resumeGame);
 document.getElementById("menu-btn").addEventListener("click", leaveToMenu);
+document.getElementById("exit-resume-btn").addEventListener("click", resumeFromExitMenu);
+document.getElementById("exit-confirm-btn").addEventListener("click", confirmExit);
 document.addEventListener("keydown", handleKeydown);
 
 refreshHighscores();

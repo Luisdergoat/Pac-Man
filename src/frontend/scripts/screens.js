@@ -1,4 +1,5 @@
 import { refreshHighscores } from "./highscores.js";
+import { state } from "./state.js";
 
 // MARK: showScreen
 export function showScreen(id) {
@@ -45,4 +46,20 @@ export function openScoreboardScreen() {
 // MARK: scoreboardBackToStartScreen
 export function scoreboardBackToStartScreen() {
     showScreen("start-screen");
+}
+// MARK: openExitMenuScreen
+export function openExitMenuScreen() {
+    const currentlyVisible = document.querySelector(".screen:not(.hidden)");
+    state.screenBeforeExit = currentlyVisible ? currentlyVisible.id : null;
+    showScreen("exit-menu-screen");
+}
+
+// MARK: resumeFromExitMenu
+export function resumeFromExitMenu() {
+    if (state.screenBeforeExit) {
+        showScreen(state.screenBeforeExit);
+    } else {
+        hideAllScreens();
+    }
+    state.screenBeforeExit = null;
 }

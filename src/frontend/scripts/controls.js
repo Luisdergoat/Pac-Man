@@ -1,5 +1,5 @@
 import { canvas, ctx, state, cheat_list, socket, MOVE_INTERVAL_MS, KEY_TO_DIRECTION } from "./state.js";
-import { showScreen, startLoadingAnimation } from "./screens.js";
+import { showScreen, startLoadingAnimation, openExitMenuScreen, resumeFromExitMenu } from "./screens.js";
 import { refreshHighscores } from "./highscores.js";
 
 // MARK: beginRound
@@ -54,8 +54,32 @@ export function leaveToMenu() {
     showScreen("start-screen");
 }
 
+// MARK: confirmExit
+export function confirmExit() {
+    state.gameClosed = true;
+    socket.send(JSON.stringify({ action: "exit_game" }));
+    showScreen("game-closed-screen");
+}
+
 // MARK: handleKeydown
 export function handleKeydown(event) {
+    if (state.gameClosed) {
+        return;
+    }
+
+    const exitMenuOpen = !document.getElementById("exit-menu-screen").classList.contains("hidden");
+    if (event.key === "Escape") {
+        if (exitMenuOpen) {
+            resumeFromExitMenu();
+        } else {
+            openExitMenuScreen();
+        }
+        return;
+    }
+    if (exitMenuOpen) {
+        return;
+    }
+
     const direction = KEY_TO_DIRECTION[event.key];
     let cheatActivated = false;
     if (direction) {

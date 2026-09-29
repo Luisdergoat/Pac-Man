@@ -105,6 +105,15 @@ def create_app(config_file: str, url: str) -> FastAPI:
                         game_logic.skip_level()
                         await broadcast_state()
 
+                    case "exit_game":
+                        print("shutting down server...")
+
+                        async def _kill() -> None:
+                            await asyncio.sleep(0.2)
+                            os.killpg(os.getpgid(0), signal.SIGINT)
+
+                        asyncio.create_task(_kill())
+
         except (WebSocketDisconnect, RuntimeError):
             pass
         finally:

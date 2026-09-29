@@ -57,6 +57,9 @@ export const state = {
     pauseHandled: false,
     lastMoveTime: 0,
 
+    screenBeforeExit: null,
+    gameClosed: false,
+
     playerDirection: 0, // Blickrichtung in Radiant, 0 = rechts
     mouthOpen: true,
 
