@@ -1,6 +1,7 @@
 import uvicorn
 from src.server import create_app
 import sys
+
 PORT = 5000
 URL = f"http://localhost:{PORT}"
 

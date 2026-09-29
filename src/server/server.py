@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import asyncio
 import json
 import os
@@ -16,7 +14,6 @@ from src.loader import load_highscores
 from src.game_logic import build_maze, GameLogic
 
 TICK_RATE = 0.3
-BASE_DIR = Path(__file__).resolve().parent
 
 
 def create_app(config_file: str, url: str) -> FastAPI:

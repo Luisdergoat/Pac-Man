@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from src.loader import add_highscore, load_config
 from src.game_logic.objects import Ghost, GameState, State
 from src.game_logic.game_logic_helper import LogicHelper as lhelp
@@ -8,20 +6,16 @@ from typing import Optional, Any
 from random import randint
 
 Grid = list[list[int]]
-GHOST_CHASE_CHANCE = 0.7
-# POINTS_PER_GUM = load_config().get("points_per_pacgum")
-# POINTS_PER_SUPER_GUM = load_config().get("points_per_super_pacgum")
-# POINTS_PER_GHOST = load_config().get("points_per_ghost")
-EDIBLE_DURATION = 8
 
+GHOST_CHASE_CHANCE = 0.7
+EDIBLE_DURATION = 8
+GHOST_COLORS = ["red", "pink", "cyan", "orange"]
 DIRECTIONS: dict[str, tuple[int, int]] = {
     "up": (-1, 0),
     "down": (1, 0),
     "left": (0, -1),
     "right": (0, 1),
 }
-
-GHOST_COLORS = ["red", "pink", "cyan", "orange"]
 
 
 # MARK: GameLogic
