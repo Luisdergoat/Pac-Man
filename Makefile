@@ -1,4 +1,4 @@
-ENTRY = pac_man.py
+ENTRY = pac-man.py
 SRC = src/
 ARGS = $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
 
