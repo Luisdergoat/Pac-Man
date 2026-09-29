@@ -60,7 +60,7 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
             if not isinstance(v, str) or not v:
                 print(f"Error {k} invalid value {v}")
                 continue
-        elif not isinstance(v, int) or v < 0:
+        elif not isinstance(v, int) or isinstance(v, bool) or v < 0:
             print(f"Error {k} invalid value {repr(v)}")
             continue
         res.update({k: v})
@@ -142,11 +142,13 @@ def _parse_highscores(
             print("Error loading highscores, name not valid.")
             continue
 
-        if not isinstance(entry["score"], int) or entry["score"] < 0:
+        if not isinstance(entry["score"], int) or entry["score"] < 0\
+                or isinstance(entry["score"], bool):
             print("Error loading highscores, score not valid.")
             continue
 
-        if not isinstance(entry["level"], int) or entry["level"] < 0:
+        if not isinstance(entry["level"], int) or entry["level"] < 0\
+                or isinstance(entry["level"], bool):
             print("Error loading highscores, level not valid.")
             continue
 
