@@ -178,7 +178,7 @@ def load_highscores(filename: str) -> list[dict[str, Any]]:
         with open(filename, "r", encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
-        print(f"Highscore file {filename} not found. Returning empty list.")
+        print(f"Highscore file {filename} not created yet.")
         return []
     except (json.JSONDecodeError, OSError) as exc:
         print(f"Warning: Highscore file {filename} is corrupted or unreadable:"

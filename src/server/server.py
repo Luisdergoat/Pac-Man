@@ -78,7 +78,9 @@ def create_app(config_file: str, url: str) -> FastAPI:
 
                     case "submit_name":
                         game_logic.record_highscore(
-                            data.get("name", ""), "highscores.json")
+                            data.get("name", ""),
+                            game_logic.config["highscore_filename"]
+                        )
                         await broadcast_state()
 
                     case "restart":
@@ -121,7 +123,7 @@ def create_app(config_file: str, url: str) -> FastAPI:
     # MARK: get_highscores
     @app.get("/highscores")
     def get_highscores() -> list[dict[str, Any]]:
-        scores = load_highscores("highscores.json")
+        scores = load_highscores(game_logic.config["highscore_filename"])
         scores.sort(key=lambda entry: entry.get("score", 0), reverse=True)
         return scores
 
