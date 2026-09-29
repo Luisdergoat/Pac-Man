@@ -28,7 +28,6 @@ def create_app(config_file: str, url: str) -> FastAPI:
 
     # MARK: game_loop
     async def game_loop() -> None:
-        print(game_logic.g_state.paused)
         game_logic.g_state.grid = build_maze(0)
         webbrowser.open(url)
         # ! While true is most of the time not a good idea.
