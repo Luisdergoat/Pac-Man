@@ -148,6 +148,7 @@ class GameLogic:
         self.g_state.edible_until = 0.0
         self.g_state.started = False
         self.g_state.state = State.ALIVE
+        self.g_state.cheats_enabled = False
         self._setup(GHOST_COLORS)
 
     # MARK: next_level
@@ -158,7 +159,8 @@ class GameLogic:
         self.g_state.level += 1
         self.g_state.level_completed = False
         self.g_state.grid = grid
-        self.g_state.edible_until = 0.0
+        if self.g_state.edible_until != float("inf"):
+            self.g_state.edible_until = 0.0
         self.g_state.level_max_time = self.config["level_max_time"]
         self._setup(GHOST_COLORS)
 
