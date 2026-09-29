@@ -7,7 +7,7 @@ URL = f"http://localhost:{PORT}"
 
 def main() -> None:
     if len(sys.argv) != 2:
-        print("Usage: python3 pac_man.py <config.json>")
+        print("Usage: python3 pac-man.py <config.json>")
         return
 
     app = create_app(sys.argv[1], URL)

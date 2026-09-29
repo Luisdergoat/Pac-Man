@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 import re
-import sys
 from typing import Any
 
 DEFAULT_CONFIG: dict[str, int | str] = {
@@ -13,16 +12,6 @@ DEFAULT_CONFIG: dict[str, int | str] = {
     "level_max_time": 90
 }
 
-
-# MARK: get_config_path
-def get_config_path() -> str:
-    if len(sys.argv) != 2:
-        print("Usage: python3 pac_man.py <config.json>")
-        sys.exit(1)
-    return sys.argv[1]
-
-
-CONFIG_PATH = get_config_path()
 MAX_HIGHSCORES = 10
 # Only allow alphanum charactes min 1 max 20.
 NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,10}$")
@@ -85,7 +74,7 @@ def load_config(config_file: str) -> dict[str, Any]:
     If an error accours while reading use default values.
 
     Args:
-        CONFIG_PATH (str): File path to json file.
+        config_file (str): File path to json file.
 
     Returns:
         dict[str, Any]: Returns parsed json data or fallback data.
@@ -99,13 +88,13 @@ def load_config(config_file: str) -> dict[str, Any]:
             if isinstance(loaded_config, dict):
                 default_config.update(_config_parser(loaded_config))
     except FileNotFoundError:
-        print(f"Config file {CONFIG_PATH} not found. "
+        print(f"Config file {config_file} not found. "
               f"Using default configuration.")
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON from {CONFIG_PATH}: {e}. "
+        print(f"Error decoding JSON from {config_file}: {e}. "
               f"Using default configuration.")
     except PermissionError:
-        print(f"No permission to open config file {CONFIG_PATH}. "
+        print(f"No permission to open config file {config_file}. "
               f"Using default configuration.")
     return default_config
 
