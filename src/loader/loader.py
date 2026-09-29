@@ -4,7 +4,7 @@ import re
 import sys
 from typing import Any
 
-DEFAULT_CONFIG = {
+DEFAULT_CONFIG: dict[str, int | str] = {
     "highscore_filename": "highscore.json",
     "lives": 3,
     "points_per_pacgum": 10,
@@ -15,7 +15,7 @@ DEFAULT_CONFIG = {
 
 
 # MARK: get_config_path
-def get_config_path():
+def get_config_path() -> str:
     if len(sys.argv) != 2:
         print("Usage: python3 pac_man.py <config.json>")
         sys.exit(1)
