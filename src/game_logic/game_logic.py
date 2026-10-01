@@ -27,7 +27,7 @@ class GameLogic:
     # MARK: __post_init__
     def __post_init__(self) -> None:
         """
-        Setzt die Startposition des Spielers und der Geiste.
+        Sets up the start state of the game
         """
         self._setup(GHOST_COLORS)
 
@@ -54,7 +54,7 @@ class GameLogic:
     # MARK: move_player
     def move_player(self, direction: str) -> None:
         """
-        Bewegt den Spieler in die angegebene Richtung, falls möglich.
+        Moves the player in the given direction, if possible
         """
         if self.g_state.paused:
             return
@@ -77,7 +77,7 @@ class GameLogic:
     # MARK: tick
     def tick(self) -> None:
         """
-        Führt einen Tick des Spiels aus: bewegt die Geister und prüft Kontakte.
+        Start a tick of the game and checks for collisions
         """
         if not self.g_state.started:
             return
@@ -93,7 +93,7 @@ class GameLogic:
             (ghost.row, ghost.col) for ghost in self.g_state.ghosts
             if not ghost.on_cooldown}
         for ghost in self.g_state.ghosts:
-            occupied.discard((ghost.row, ghost.col))  # Geiter entfernen
+            occupied.discard((ghost.row, ghost.col))
             lhelp.move_ghost_towards_player(
                 self.g_state,
                 ghost,
@@ -126,7 +126,7 @@ class GameLogic:
         self, name: str, filename: str
     ) -> list[dict[str, Any]] | None:
         """
-        Fügt den aktuellen Score zur Highscore-liste hinzu.
+        Puts the current score into the highscore list
         """
         return add_highscore(
             filename, name, self.g_state.score, self.g_state.level)
@@ -134,7 +134,7 @@ class GameLogic:
     # MARK: reset
     def reset(self, grid: Optional[Grid] = None) -> None:
         """
-        Setzt den Spielzustand zurück, um ein neues Spiel zu starten.
+        resets the game state for a new round
         """
         # config = load_config()
         self.g_state.round_id += 1
@@ -154,7 +154,7 @@ class GameLogic:
     # MARK: next_level
     def next_level(self, grid: Grid) -> None:
         """
-        Setzt den Spielzustand zurück, um das nächste Level zu starten.
+        sets up the next level with a new grid and resets the level state
         """
         self.g_state.level += 1
         self.g_state.level_completed = False
@@ -167,14 +167,14 @@ class GameLogic:
     # MARK: toggle_pause
     def toggle_pause(self) -> None:
         """
-        Pausiert oder setzt das Spiel fort.
+        Pauses or unpauses the game
         """
         self.g_state.paused = not self.g_state.paused
 
     # MARK: leave_to_menu
     def leave_to_menu(self) -> None:
         """
-        Setzt das Spiel zurück und kehrt zum Startbildschirm zurück.
+        Resets the game state and returns to the main menu
         """
         self.g_state.paused = False
         self.g_state.started = False
@@ -182,8 +182,7 @@ class GameLogic:
     # MARK: to_dict
     def to_dict(self) -> dict[str, Any]:
         """
-        Gibt den aktuellen Spielzustand als dict zurück,
-        für die JS Kommunikation.
+        Converts the game state to a dictionary for sending to the frontend
         """
         return {
             "grid": self.g_state.grid,

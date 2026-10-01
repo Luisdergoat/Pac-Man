@@ -30,7 +30,7 @@ def create_app(config_file: str, url: str) -> FastAPI:
     async def game_loop() -> None:
         game_logic.g_state.grid = build_maze(0)
         webbrowser.open(url)
-        # ! While true is most of the time not a good idea.
+
         while True:
             await asyncio.sleep(TICK_RATE)
             game_logic.tick()

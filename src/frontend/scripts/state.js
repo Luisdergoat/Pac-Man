@@ -50,7 +50,7 @@ export const state = {
     score: 0,
     level: 1,
     edible: false,
-    roundId: 0, // ID der aktuellen Runde, um alte Ticks zu ignorieren
+    roundId: 0,
 
     gameOverHandled: false,
     awaitingRoundStart: false,
@@ -60,7 +60,7 @@ export const state = {
     screenBeforeExit: null,
     gameClosed: false,
 
-    playerDirection: 0, // Blickrichtung in Radiant, 0 = rechts
+    playerDirection: 0,
     mouthOpen: true,
 
     cheat_check: structuredClone(cheat_list),

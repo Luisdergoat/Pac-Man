@@ -31,7 +31,7 @@ class LogicHelper:
                     visited.add((new_row, new_col))
                     queue.append((new_row, new_col))
 
-        return 1, 1  # Fallback, falls keine offene Zelle gefunden wird
+        return 1, 1  # Fallback, if there is no open cell
 
     # MARK: collect_gums
     @staticmethod
@@ -263,7 +263,7 @@ class LogicHelper:
                     parent[neighbor] = current
                     queue.append(neighbor)
         if not found:
-            return None  # Kein Weg gefunden
+            return None  # found no path to target
 
         step = target
         while parent[step] != start:

@@ -16,7 +16,7 @@ export function hideAllScreens() {
 export function startLoadingAnimation() {
     const fill = document.getElementById("loading-bar-fill");
     fill.classList.remove("running", "complete");
-    void fill.offsetWidth; // erzwingt einen Reflow, damit der Browser width:0% erst "sieht"
+    void fill.offsetWidth;
     fill.classList.add("running");
 }
 

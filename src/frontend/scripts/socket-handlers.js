@@ -11,7 +11,7 @@ export function handleSocketMessage(event) {
     const data = JSON.parse(event.data);
 
     if (state.awaitingRoundStart && data.round_id === state.roundId) {
-        return; // Ignoriere alte Ticks, die vor dem Start der neuen Runde empfangen wurden
+        return;
     }
     state.roundId = data.round_id;
 
