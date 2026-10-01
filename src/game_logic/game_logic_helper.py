@@ -6,6 +6,9 @@ from src.game_logic.objects import GameState, Ghost, State
 
 
 class LogicHelper:
+    def __init__(self):
+        self.level_difficulty = 1
+
     # MARK: find_nearest_open_cell
     @staticmethod
     def find_nearest_open_cell(
@@ -273,15 +276,20 @@ class LogicHelper:
     # MARK: move_ghost_towards_player
     @classmethod
     def move_ghost_towards_player(
+        self,
         cls,
         gamestate: GameState,
         ghost: Ghost,
         GHOST_CHASE_CHANCE: float,
-        blocked: set[tuple[int, int]] | None = None
-    ) -> None:
+        blocked: set[tuple[int, int]] | None = None,
+        level: int = 1
+    ) -> float:
         if cls.is_edible(gamestate):
             ghost.row, ghost.col = cls._flee_step(gamestate, ghost, blocked)
             return
+        if level > self.level_difficulty:
+            GHOST_CHASE_CHANCE = 0.1
+            self.level_difficulty += 1
         if random.random() < GHOST_CHASE_CHANCE:
             next_step = cls.bfs_next_step(
                 gamestate.grid, (ghost.row, ghost.col),
@@ -291,3 +299,4 @@ class LogicHelper:
                 return
         ghost.row, ghost.col = cls._random_valid_step(
             gamestate, ghost, blocked)
+        return GHOST_CHASE_CHANCE

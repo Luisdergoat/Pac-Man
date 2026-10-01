@@ -7,7 +7,7 @@ from random import randint
 
 Grid = list[list[int]]
 
-GHOST_CHASE_CHANCE = 0.7
+GHOST_CHASE_CHANCE = 0.4
 EDIBLE_DURATION = 8
 GHOST_COLORS = ["red", "pink", "cyan", "orange"]
 DIRECTIONS: dict[str, tuple[int, int]] = {
@@ -23,6 +23,7 @@ class GameLogic:
     def __init__(self, config_name: str) -> None:
         self.g_state = GameState(build_maze(randint(0, 1000)))
         self.config = load_config(config_name)
+        self.difficulty = 0
 
     # MARK: __post_init__
     def __post_init__(self) -> None:
@@ -94,11 +95,12 @@ class GameLogic:
             if not ghost.on_cooldown}
         for ghost in self.g_state.ghosts:
             occupied.discard((ghost.row, ghost.col))
-            lhelp.move_ghost_towards_player(
+            self.difficulty = lhelp.move_ghost_towards_player(
                 self.g_state,
                 ghost,
-                GHOST_CHASE_CHANCE,
-                blocked=occupied
+                GHOST_CHASE_CHANCE + self.difficulty,
+                self.g_state.level,
+                blocked=occupied,
             )
             occupied.add((ghost.row, ghost.col))
         lhelp.check_collision(self.g_state, self.config["points_per_ghost"])
