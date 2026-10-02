@@ -103,7 +103,6 @@ built-in defaults (see [Configuration](#configuration)).
 | `make lint` | `flake8` + `mypy` (with the flags required by the subject) |
 | `make lint-strict` | `flake8` + `mypy --strict` |
 | `make clean` | Removes `__pycache__`, `.mypy_cache`, `.pytest_cache` |
-| `make fclean` | `clean` + removes `.venv` and `uv.lock` |
 
 ### Stop the game
 
@@ -181,7 +180,7 @@ Names must match `^[A-Za-z0-9]{1,10}$`; anything else is replaced by `Player`.
 An entry in the file looks like:
 
 ```json
-{ "name": "Edosa", "score": 6040, "level": 1 }
+{ "name": "PLAYER", "score": 6040, "level": 1 }
 ```
 
 **Why we did it this way**
@@ -317,11 +316,11 @@ enough and always finds the shortest path.
 
 ```
 if ghosts are edible:            flee (greedy, maximise Manhattan distance)
-elif random() < 0.7:             follow BFS shortest path to the player
+elif random() < 0.5:             follow BFS shortest path to the player
 else:                            random valid step
 ```
 
-The `GHOST_CHASE_CHANCE = 0.7` randomness makes the ghosts dangerous but
+The `GHOST_CHASE_CHANCE = 0.5` randomness makes the ghosts dangerous but
 beatable — a 100 % BFS chaser would never make a mistake.
 
 **Player input** is validated on the server (`is_wall` also treats everything
