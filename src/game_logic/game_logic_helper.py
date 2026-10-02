@@ -288,7 +288,7 @@ class LogicHelper:
             ghost.row, ghost.col = cls._flee_step(gamestate, ghost, blocked)
             return
         if level > self.level_difficulty:
-            GHOST_CHASE_CHANCE = 0.1
+            GHOST_CHASE_CHANCE += 0.1
             self.level_difficulty += 1
         if random.random() < GHOST_CHASE_CHANCE:
             next_step = cls.bfs_next_step(

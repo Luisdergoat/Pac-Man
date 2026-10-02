@@ -23,7 +23,7 @@ class GameLogic:
     def __init__(self, config_name: str) -> None:
         self.g_state = GameState(build_maze(randint(0, 1000)))
         self.config = load_config(config_name)
-        self.difficulty = 0
+        self.difficulty = GHOST_CHASE_CHANCE
 
     # MARK: __post_init__
     def __post_init__(self) -> None:
@@ -98,7 +98,7 @@ class GameLogic:
             self.difficulty = lhelp.move_ghost_towards_player(
                 self.g_state,
                 ghost,
-                GHOST_CHASE_CHANCE + self.difficulty,
+                self.difficulty,
                 self.g_state.level,
                 blocked=occupied,
             )
