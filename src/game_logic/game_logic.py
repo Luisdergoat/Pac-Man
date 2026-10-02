@@ -24,12 +24,8 @@ class GameLogic:
         self.g_state = GameState(build_maze(randint(0, 1000)))
         self.config = load_config(config_name)
         self.difficulty = GHOST_CHASE_CHANCE
-
-    # MARK: __post_init__
-    def __post_init__(self) -> None:
-        """
-        Sets up the start state of the game
-        """
+        self.g_state.level_max_time = self.config["level_max_time"]
+        self.g_state.lives = self.config["lives"]
         self._setup(GHOST_COLORS)
 
     # MARK: setup
@@ -95,12 +91,12 @@ class GameLogic:
             if not ghost.on_cooldown}
         for ghost in self.g_state.ghosts:
             occupied.discard((ghost.row, ghost.col))
-            self.difficulty = lhelp.move_ghost_towards_player(
+            lhelp.move_ghost_towards_player(
                 self.g_state,
                 ghost,
                 self.difficulty,
-                self.g_state.level,
                 blocked=occupied,
+                level=self.g_state.level,
             )
             occupied.add((ghost.row, ghost.col))
         lhelp.check_collision(self.g_state, self.config["points_per_ghost"])

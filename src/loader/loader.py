@@ -12,6 +12,8 @@ DEFAULT_CONFIG: dict[str, int | str] = {
 }
 
 MAX_HIGHSCORES = 10
+# Config values that must be at least 1 (0 would break the game).
+MIN_ONE_KEYS = ("lives", "level_max_time")
 # Only allow alphanum charactes min 1 max 20.
 NAME_PATTERN = re.compile(r"^[A-Za-z0-9]{1,10}$")
 
@@ -62,6 +64,9 @@ def _config_parser(config: dict[Any, Any]) -> dict[str, int | str]:
                 continue
         elif not isinstance(v, int) or isinstance(v, bool) or v < 0:
             print(f"Error {k} invalid value {repr(v)}")
+            continue
+        elif k in MIN_ONE_KEYS and v < 1:
+            print(f"Error {k} must be at least 1, got {v}")
             continue
         res.update({k: v})
     return res

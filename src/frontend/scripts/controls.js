@@ -80,6 +80,24 @@ export function handleKeydown(event) {
         return;
     }
 
+    // Game keys only work while the canvas is shown. Menus, the game over
+    // overlay (name input) and the loading screen must not trigger actions.
+    // Only "p" is still allowed to leave the pause screen.
+    const screenOpen = document.querySelector(".screen:not(.hidden)") !== null;
+    const pauseOpen = !document.getElementById("pause-screen").classList.contains("hidden");
+    if (event.key === "p" || event.key === "P") {
+        if (!screenOpen || pauseOpen) {
+            socket.send(JSON.stringify({ action: "pause_toggle" }));
+        }
+        return;
+    }
+    if (screenOpen) {
+        return;
+    }
+    if (event.key === " " || event.key.startsWith("Arrow")) {
+        event.preventDefault();
+    }
+
     const direction = KEY_TO_DIRECTION[event.key];
     let cheatActivated = false;
     if (direction) {
@@ -98,9 +116,6 @@ export function handleKeydown(event) {
         if (!state.gameOverHandled) {
         beginRound();
         }
-    }
-    if (event.key === "p" || event.key === "P") {
-        socket.send(JSON.stringify({ action: "pause_toggle" }));
     }
     if (event.key === " ") {
         socket.send(JSON.stringify({ action: "skip_level"}));

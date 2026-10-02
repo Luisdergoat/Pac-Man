@@ -14,7 +14,7 @@ class Ghost:
 
 class State(IntEnum):
     ALIVE = 0
-    DEAD = 1,
+    DEAD = 1
     TIMEDOUT = 2
 
 

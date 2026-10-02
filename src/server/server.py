@@ -28,13 +28,15 @@ def create_app(config_file: str, url: str) -> FastAPI:
 
     # MARK: game_loop
     async def game_loop() -> None:
-        game_logic.g_state.grid = build_maze(0)
         webbrowser.open(url)
 
         while True:
             await asyncio.sleep(TICK_RATE)
-            game_logic.tick()
-            await broadcast_state()
+            try:
+                game_logic.tick()
+                await broadcast_state()
+            except Exception as exc:
+                print(f"Error in game loop: {exc!r}")
 
     # MARK: broadcast_state
     async def broadcast_state() -> None:

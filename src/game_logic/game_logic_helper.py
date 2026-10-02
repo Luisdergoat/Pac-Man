@@ -6,9 +6,6 @@ from src.game_logic.objects import GameState, Ghost, State
 
 
 class LogicHelper:
-    def __init__(self):
-        self.level_difficulty = 1
-
     # MARK: find_nearest_open_cell
     @staticmethod
     def find_nearest_open_cell(
@@ -29,8 +26,8 @@ class LogicHelper:
             for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                 new_row, new_col = row + dr, col + dc
                 if (0 <= new_row < rows
-                    and 0 <= new_col < cols
-                        and (new_row, new_col)) not in visited:
+                        and 0 <= new_col < cols
+                        and (new_row, new_col) not in visited):
                     visited.add((new_row, new_col))
                     queue.append((new_row, new_col))
 
@@ -276,21 +273,22 @@ class LogicHelper:
     # MARK: move_ghost_towards_player
     @classmethod
     def move_ghost_towards_player(
-        self,
         cls,
         gamestate: GameState,
         ghost: Ghost,
-        GHOST_CHASE_CHANCE: float,
+        chase_chance: float,
         blocked: set[tuple[int, int]] | None = None,
         level: int = 1
-    ) -> float:
+    ) -> None:
+        """
+        Bewegt den Geist einen Schritt. Die Verfolgungswahrscheinlichkeit
+        steigt mit jedem Level um 0.1 (maximal 1.0).
+        """
         if cls.is_edible(gamestate):
             ghost.row, ghost.col = cls._flee_step(gamestate, ghost, blocked)
             return
-        if level > self.level_difficulty:
-            GHOST_CHASE_CHANCE += 0.1
-            self.level_difficulty += 1
-        if random.random() < GHOST_CHASE_CHANCE:
+        chance = min(1.0, chase_chance + 0.1 * (level - 1))
+        if random.random() < chance:
             next_step = cls.bfs_next_step(
                 gamestate.grid, (ghost.row, ghost.col),
                 (gamestate.player_row, gamestate.player_col), blocked)
@@ -299,4 +297,3 @@ class LogicHelper:
                 return
         ghost.row, ghost.col = cls._random_valid_step(
             gamestate, ghost, blocked)
-        return GHOST_CHASE_CHANCE

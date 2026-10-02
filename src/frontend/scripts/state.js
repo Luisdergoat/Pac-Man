@@ -31,10 +31,10 @@ export const KEY_TO_DIRECTION = {
     A: "left",
     S: "down",
     D: "right",
-    right: "right",
-    left: "left",
-    down: "down",
-    up: "up",
+    ArrowRight: "right",
+    ArrowLeft: "left",
+    ArrowDown: "down",
+    ArrowUp: "up",
 };
 
 export const socket = new WebSocket(`ws://${window.location.host}/ws`);
