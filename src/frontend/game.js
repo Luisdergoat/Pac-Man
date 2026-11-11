@@ -17,6 +17,7 @@ import {
     confirmExit,
     handleKeydown,
 } from "./scripts/controls.js";
+import { initGamepad } from "./scripts/gamepad.js";
 
 document.querySelectorAll(".pacman-hero").forEach(injectHeroMazeBackground);
 
@@ -34,5 +35,6 @@ document.getElementById("menu-btn").addEventListener("click", leaveToMenu);
 document.getElementById("exit-resume-btn").addEventListener("click", resumeFromExitMenu);
 document.getElementById("exit-confirm-btn").addEventListener("click", confirmExit);
 document.addEventListener("keydown", handleKeydown);
+initGamepad();
 
 refreshHighscores();

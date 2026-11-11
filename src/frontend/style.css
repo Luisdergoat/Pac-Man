@@ -157,7 +157,8 @@
     color: #ffd400;
 }
 
-.hero-btn-yellow:hover {
+.hero-btn-yellow:hover,
+.hero-btn-yellow.gamepad-focus {
     background: #ffd400;
     color: #000000;
     box-shadow: 0 0 18px rgba(255, 212, 0, 0.6);
@@ -168,7 +169,8 @@
     color: #29b6f6;
 }
 
-.hero-btn-blue:hover {
+.hero-btn-blue:hover,
+.hero-btn-blue.gamepad-focus {
     background: #29b6f6;
     color: #000000;
     box-shadow: 0 0 18px rgba(41, 182, 246, 0.6);
@@ -179,7 +181,8 @@
     color: #ff9f1c;
 }
 
-.hero-btn-orange:hover {
+.hero-btn-orange:hover,
+.hero-btn-orange.gamepad-focus {
     background: #ff9f1c;
     color: #000000;
     box-shadow: 0 0 18px rgba(255, 159, 28, 0.6);
@@ -190,7 +193,8 @@
     color: #ff3b30;
 }
 
-.hero-btn-red:hover {
+.hero-btn-red:hover,
+.hero-btn-red.gamepad-focus {
     background: #ff3b30;
     color: #000000;
     box-shadow: 0 0 18px rgba(255, 59, 48, 0.6);
@@ -567,6 +571,10 @@
 
 .hero-input::placeholder {
     color: rgba(255, 212, 0, 0.5);
+}
+
+.hero-btn:focus {
+    outline: none;
 }
 
 .hero-input:focus {
