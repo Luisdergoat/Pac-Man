@@ -11,6 +11,7 @@ import { handleKeydown } from "./controls.js";
 
 const BTN = { A: 0, B: 1, X: 2, Y: 3, BACK: 8, START: 9, UP: 12, DOWN: 13, LEFT: 14, RIGHT: 15 };
 const STICK_DEADZONE = 0.5;
+const AXIS_DOMINANCE = 0.6;    // share one axis needs (60 %) to win over the other
 const REPEAT_DELAY_MS = 220;
 
 const previous = {};           // button/direction -> was pressed last frame
@@ -27,19 +28,57 @@ function sendKey(key) {
     handleKeydown({ key, preventDefault() {} });
 }
 
-// MARK: readDirection
-function readDirection(pad) {
-    const pressed = i => pad.buttons[i] && pad.buttons[i].pressed;
-    if (pressed(BTN.UP)) return "up";
-    if (pressed(BTN.DOWN)) return "down";
-    if (pressed(BTN.LEFT)) return "left";
-    if (pressed(BTN.RIGHT)) return "right";
+// MARK: readHat
+// Many non-"standard" arcade sticks report all 8 directions on one "hat" axis
+// (usually axis 9): -1 up, then clockwise in steps of 2/7, anything > 1 = neutral.
+function readHat(pad) {
+    if (pad.mapping === "standard" || pad.axes.length < 10) return null;
+    const v = pad.axes[9];
+    if (v === undefined || v < -1.05 || v > 1.05) return null;
+    const step = Math.round((v + 1) / (2 / 7)) % 8;           // 0 = up, 2 = right, 4 = down, 6 = left
+    const angle = step * Math.PI / 4;
+    return { x: Math.round(Math.sin(angle)), y: Math.round(-Math.cos(angle)) };
+}
 
-    const x = pad.axes[0] || 0;
-    const y = pad.axes[1] || 0;
-    if (Math.max(Math.abs(x), Math.abs(y)) < STICK_DEADZONE) return null;
-    if (Math.abs(x) > Math.abs(y)) return x > 0 ? "right" : "left";
-    return y > 0 ? "down" : "up";
+// MARK: readVector
+// Combines D-pad, hat and left stick into one x/y vector (-1..1, y down).
+function readVector(pad) {
+    const pressed = i => pad.buttons[i] && pad.buttons[i].pressed;
+    const dx = (pressed(BTN.RIGHT) ? 1 : 0) - (pressed(BTN.LEFT) ? 1 : 0);
+    const dy = (pressed(BTN.DOWN) ? 1 : 0) - (pressed(BTN.UP) ? 1 : 0);
+    if (dx || dy) return { x: dx, y: dy };
+
+    const hat = readHat(pad);
+    if (hat && (hat.x || hat.y)) return hat;
+
+    return { x: pad.axes[0] || 0, y: pad.axes[1] || 0 };
+}
+
+// MARK: readDirection
+// Turns an 8-way / analog input into one of the 4 game directions.
+// - Below STICK_DEADZONE nothing happens.
+// - If one axis makes up at least AXIS_DOMINANCE of the input (e.g. 60 % right,
+//   40 % down), that axis wins even if the stick is not held perfectly straight.
+// - Real diagonals (8-way stick, both axes ~equal) keep the current direction if it
+//   is part of the diagonal, otherwise they choose the turn (the axis you are not
+//   moving on). That lets you "pre-hold" a corner, like in the arcade.
+function readDirection(pad, current) {
+    const { x, y } = readVector(pad);
+    const ax = Math.abs(x);
+    const ay = Math.abs(y);
+    if (Math.hypot(x, y) < STICK_DEADZONE) return null;
+
+    const horizontal = x > 0 ? "right" : "left";
+    const vertical = y > 0 ? "down" : "up";
+    const share = Math.max(ax, ay) / (ax + ay);
+
+    if (share >= AXIS_DOMINANCE) return ax > ay ? horizontal : vertical;
+
+    // Near-diagonal: decide based on what we are already doing.
+    if (current === horizontal || current === vertical) return current;
+    if (current === "left" || current === "right") return vertical;
+    if (current === "up" || current === "down") return horizontal;
+    return ax >= ay ? horizontal : vertical;
 }
 
 // MARK: activeScreen
@@ -120,7 +159,7 @@ function pollGamepads() {
         const justPressed = i => current[i] && !previous[i];
 
         // Direction with keyboard-like auto repeat: fire once, then repeat while held.
-        const direction = readDirection(pad);
+        const direction = readDirection(pad, heldDirection);
         let directionFired = null;
         if (direction !== heldDirection) {
             heldDirection = direction;
